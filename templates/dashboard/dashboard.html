@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Top Header -->
+
+<div class="dashboard-header">
+
+    <div>
+
+        <h2 class="page-title">
+            Dashboard
+        </h2>
+
+        <p class="page-subtitle">
+            Welcome back, {{ request.user.username }}
+        </p>
+
+    </div>
+
+    <div class="header-actions">
+
+        <button class="header-btn">
+
+            <i class="bi bi-download"></i>
+
+            Reports
+
+        </button>
+
+        <div class="user-profile">
+
+            <i class="bi bi-person-circle"></i>
+
+            {{ request.user.username }}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- KPI CARDS -->
+
+<div class="row g-4">
+
+    <div class="col-md-6 col-xl-3">
+
+        <div class="stats-card revenue-card">
+
+            <div class="stats-icon">
+                <i class="bi bi-currency-rupee"></i>
+            </div>
+
+            <div>
+
+                <h6>Total Revenue</h6>
+
+                <h3>
+                    ₹{{ total_revenue }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+
+        <div class="stats-card invoice-card">
+
+            <div class="stats-icon">
+                <i class="bi bi-receipt"></i>
+            </div>
+
+            <div>
+
+                <h6>Total Invoices</h6>
+
+                <h3>
+                    {{ total_invoices }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+
+        <div class="stats-card customer-card">
+
+            <div class="stats-icon">
+                <i class="bi bi-people"></i>
+            </div>
+
+            <div>
+
+                <h6>Total Customers</h6>
+
+                <h3>
+                    {{ total_customers }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+
+        <div class="stats-card pending-card">
+
+            <div class="stats-icon">
+                <i class="bi bi-clock-history"></i>
+            </div>
+
+            <div>
+
+                <h6>Pending Amount</h6>
+
+                <h3>
+                    ₹{{ pending_amount }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Charts Section -->
+
+<div class="row mt-4 g-4">
+
+    <div class="col-lg-8">
+
+        <div class="dashboard-panel">
+
+            <div class="panel-header">
+
+                <h5>
+                    Revenue Overview
+                </h5>
+
+            </div>
+
+            <canvas id="revenueChart"></canvas>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="dashboard-panel">
+
+            <div class="panel-header">
+
+                <h5>
+                    Invoice Status
+                </h5>
+
+            </div>
+
+            <canvas id="invoiceChart"></canvas>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Recent Invoices -->
+
+<div class="dashboard-panel mt-4">
+
+    <div class="panel-header">
+
+        <h5>
+            Recent Invoices
+        </h5>
+
+    </div>
+
+    <div class="table-responsive">
+
+        <table class="table custom-table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Invoice</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for invoice in recent_invoices %}
+
+                <tr>
+
+                    <td>
+                        {{ invoice.invoice_number }}
+                    </td>
+
+                    <td>
+                        {{ invoice.customer.name }}
+                    </td>
+
+                    <td>
+                        ₹{{ invoice.total }}
+                    </td>
+
+                    <td>
+
+                        {% if invoice.status == 'Paid' %}
+
+                        <span class="status-badge success-badge">
+                            Paid
+                        </span>
+
+                        {% elif invoice.status == 'Pending' %}
+
+                        <span class="status-badge warning-badge">
+                            Pending
+                        </span>
+
+                        {% else %}
+
+                        <span class="status-badge danger-badge">
+                            Overdue
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- Low Stock -->
+
+<div class="dashboard-panel mt-4 mb-5">
+
+    <div class="panel-header">
+
+        <h5>
+            Low Stock Products
+        </h5>
+
+    </div>
+
+    <div class="table-responsive">
+
+        <table class="table custom-table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Product</th>
+                    <th>Stock</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for product in low_stock_products %}
+
+                <tr>
+
+                    <td>
+                        {{ product.name }}
+                    </td>
+
+                    <td>
+
+                        <span class="status-badge danger-badge">
+                            {{ product.quantity }}
+                        </span>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="2">
+                        No low stock products
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

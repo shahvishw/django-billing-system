@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+
+{% if customer %}
+    Edit Customer
+{% else %}
+    Add Customer
+{% endif %}
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/customer-form.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+
+<div class="customer-page-header">
+
+    <div>
+
+        <h2 class="page-title">
+
+            {% if customer %}
+                Edit Customer
+            {% else %}
+                Add New Customer
+            {% endif %}
+
+        </h2>
+
+        <p class="page-subtitle">
+
+            {% if customer %}
+                Update existing customer information
+            {% else %}
+                Create and manage customer details
+            {% endif %}
+
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- ================= FORM CARD ================= -->
+
+<div class="customer-form-wrapper">
+
+    <div class="customer-form-card">
+
+        <div class="form-header">
+
+            <div class="header-icon">
+
+                <i class="bi bi-person-lines-fill"></i>
+
+            </div>
+
+            <div>
+
+                <h5>
+
+                    {% if customer %}
+                        Customer Details
+                    {% else %}
+                        New Customer Details
+                    {% endif %}
+
+                </h5>
+
+                <p>
+                    Fill all required customer information
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= FORM ================= -->
+
+        <form method="post" novalidate>
+
+            {% csrf_token %}
+
+
+            <!-- FULL NAME -->
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Full Name
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="bi bi-person"></i>
+
+                    <input
+                        type="text"
+                        name="name"
+                        class="custom-input"
+                        value="{{ customer.name|default:'' }}"
+                        placeholder="Enter customer full name"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- EMAIL -->
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Email Address
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="bi bi-envelope"></i>
+
+                    <input
+                        type="email"
+                        name="email"
+                        class="custom-input"
+                        value="{{ customer.email|default:'' }}"
+                        placeholder="Enter customer email"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- PHONE -->
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Phone Number
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="bi bi-telephone"></i>
+
+                    <input
+                        type="text"
+                        name="phone"
+                        class="custom-input"
+                        value="{{ customer.phone|default:'' }}"
+                        placeholder="Enter phone number"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- ADDRESS -->
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Address
+                </label>
+
+                <div class="textarea-wrapper">
+
+                    <i class="bi bi-geo-alt"></i>
+
+                    <textarea
+                        name="address"
+                        class="custom-textarea"
+                        rows="4"
+                        placeholder="Enter customer address"
+                    >{{ customer.address|default:'' }}</textarea>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+
+            <div class="form-actions">
+
+                <a 
+                    href="{% url 'customer_list' %}" 
+                    class="cancel-btn"
+                >
+
+                    Cancel
+
+                </a>
+
+
+                <button 
+                    type="submit"
+                    class="save-btn"
+                >
+
+                    <i class="bi bi-check-circle"></i>
+
+                    {% if customer %}
+                        Update Customer
+                    {% else %}
+                        Save Customer
+                    {% endif %}
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

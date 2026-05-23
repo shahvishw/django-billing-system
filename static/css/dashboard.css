@@ -1,0 +1,270 @@
+/* ===================================
+   DASHBOARD MAIN
+=================================== */
+
+.main-content{
+    background:#f8fafc;
+    min-height:100vh;
+    padding:30px;
+}
+
+
+/* ===================================
+   HEADER
+=================================== */
+
+.dashboard-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+    gap:20px;
+}
+
+.page-title{
+    font-size:32px;
+    font-weight:700;
+    color:#0f172a;
+    margin-bottom:6px;
+}
+
+.page-subtitle{
+    color:#64748b;
+    font-size:15px;
+    margin:0;
+}
+
+.header-actions{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.header-btn{
+    border:none;
+    background:#ffffff;
+    padding:12px 18px;
+    border-radius:14px;
+    font-weight:600;
+    color:#334155;
+    box-shadow:0 4px 18px rgba(15,23,42,0.06);
+    transition:0.3s ease;
+}
+
+.header-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(15,23,42,0.10);
+}
+
+.user-profile{
+    background:#2563eb;
+    color:#ffffff;
+    padding:12px 18px;
+    border-radius:14px;
+    font-weight:500;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    box-shadow:0 6px 20px rgba(37,99,235,0.20);
+}
+
+
+/* ===================================
+   STATS CARDS
+=================================== */
+
+.stats-card{
+    background:#ffffff;
+    border-radius:24px;
+    padding:24px;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    box-shadow:0 6px 22px rgba(15,23,42,0.05);
+    transition:0.35s ease;
+    border:1px solid #f1f5f9;
+}
+
+.stats-card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 14px 30px rgba(15,23,42,0.10);
+}
+
+.stats-icon{
+    width:62px;
+    height:62px;
+    border-radius:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    flex-shrink:0;
+}
+
+.revenue-card .stats-icon{
+    background:#dbeafe;
+    color:#2563eb;
+}
+
+.invoice-card .stats-icon{
+    background:#ede9fe;
+    color:#7c3aed;
+}
+
+.customer-card .stats-icon{
+    background:#dcfce7;
+    color:#16a34a;
+}
+
+.pending-card .stats-icon{
+    background:#fee2e2;
+    color:#dc2626;
+}
+
+.stats-card h6{
+    font-size:14px;
+    color:#64748b;
+    font-weight:600;
+    margin-bottom:8px;
+}
+
+.stats-card h3{
+    font-size:30px;
+    font-weight:700;
+    color:#0f172a;
+    margin:0;
+}
+
+
+/* ===================================
+   PANELS
+=================================== */
+
+.dashboard-panel{
+    background:#ffffff;
+    border-radius:24px;
+    padding:26px;
+    box-shadow:0 6px 22px rgba(15,23,42,0.05);
+    border:1px solid #f1f5f9;
+}
+
+.panel-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:24px;
+}
+
+.panel-header h5{
+    font-size:20px;
+    font-weight:700;
+    color:#0f172a;
+    margin:0;
+}
+
+
+/* ===================================
+   TABLES
+=================================== */
+
+.custom-table{
+    margin:0;
+}
+
+.custom-table thead th{
+    border:none;
+    background:#f8fafc;
+    color:#475569;
+    font-size:14px;
+    font-weight:600;
+    padding:16px;
+}
+
+.custom-table tbody td{
+    border-top:1px solid #f1f5f9;
+    padding:18px 16px;
+    color:#334155;
+    font-weight:500;
+}
+
+.custom-table tbody tr{
+    transition:0.2s ease;
+}
+
+.custom-table tbody tr:hover{
+    background:#f8fafc;
+}
+
+
+/* ===================================
+   BADGES
+=================================== */
+
+.status-badge{
+    padding:8px 14px;
+    border-radius:10px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.success-badge{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.warning-badge{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+.danger-badge{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+
+/* ===================================
+   CHARTS
+=================================== */
+
+canvas{
+    max-height:320px;
+}
+
+
+/* ===================================
+   RESPONSIVE
+=================================== */
+
+@media(max-width:992px){
+
+    .dashboard-header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+}
+
+@media(max-width:768px){
+
+    .main-content{
+        padding:20px;
+    }
+
+    .page-title{
+        font-size:26px;
+    }
+
+    .stats-card{
+        padding:20px;
+    }
+
+    .stats-card h3{
+        font-size:24px;
+    }
+
+    .dashboard-panel{
+        padding:20px;
+    }
+
+}

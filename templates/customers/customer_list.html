@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Customers
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/customer-list.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+
+<div class="customers-header">
+
+    <div>
+
+        <h2 class="page-title">
+            Customers
+        </h2>
+
+        <p class="page-subtitle">
+            Manage and view all registered customers
+        </p>
+
+    </div>
+
+    <div class="customers-search">
+
+        <i class="bi bi-search"></i>
+
+        <input 
+            type="text"
+            id="customerSearch"
+            placeholder="Search customers..."
+        >
+
+    </div>
+
+</div>
+
+
+<!-- ================= CUSTOMERS TABLE ================= -->
+
+<div class="customers-table-card">
+
+    {% if customers %}
+
+    <div class="table-responsive">
+
+        <table class="table customers-table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th class="text-end">Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="customersTableBody">
+
+                {% for customer in customers %}
+
+                <tr>
+
+                    <td>
+
+                        <div class="customer-name">
+
+                            <div class="customer-avatar">
+
+                                {{ customer.name|slice:":1" }}
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    {{ customer.name }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+                    <td>
+                        {{ customer.email }}
+                    </td>
+
+                    <td>
+                        {{ customer.phone }}
+                    </td>
+
+                    <td class="text-end">
+
+                        <a
+                            href="{% url 'customer_edit' customer.pk %}"
+                            class="edit-btn"
+                        >
+
+                            <i class="bi bi-pencil-square"></i>
+
+                            Edit
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <i class="bi bi-people"></i>
+
+        <h5>
+            No Customers Found
+        </h5>
+
+        <p>
+            Customers will appear here after creation.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- ================= SEARCH SCRIPT ================= -->
+
+<script>
+
+document.getElementById('customerSearch')
+
+.addEventListener('keyup', function () {
+
+    const value = this.value.toLowerCase();
+
+    const rows = document.querySelectorAll('#customersTableBody tr');
+
+    rows.forEach(row => {
+
+        const text = row.innerText.toLowerCase();
+
+        row.style.display = text.includes(value)
+            ? ''
+            : 'none';
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

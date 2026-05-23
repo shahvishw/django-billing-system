@@ -1,0 +1,519 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Create Invoice
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/invoice-form.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+
+<div class="page-header">
+
+    <div>
+
+        <h2 class="page-title">
+            Create Invoice
+        </h2>
+
+        <p class="page-subtitle">
+            Create and manage customer invoices professionally
+        </p>
+
+    </div>
+
+</div>
+
+
+<form method="post" id="invoiceForm">
+
+    {% csrf_token %}
+
+    <!-- ================= CUSTOMER SECTION ================= -->
+
+    <div class="form-panel">
+
+        <div class="panel-header">
+
+            <h5>
+                Customer Details
+            </h5>
+
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-5">
+
+                <label class="form-label">
+                    Customer Name
+                </label>
+
+                <input 
+                    type="text"
+                    id="cust-name"
+                    name="cust-name"
+                    class="form-control custom-input"
+                    placeholder="Enter customer name"
+                    required
+                >
+
+            </div>
+
+            <div class="col-md-5">
+
+                <label class="form-label">
+                    Customer Email
+                </label>
+
+                <input 
+                    type="email"
+                    id="cust-email"
+                    name="cust-email"
+                    class="form-control custom-input"
+                    placeholder="Enter customer email"
+                    required
+                >
+
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+
+                <div id="check-customer" class="w-100">
+
+                    <button 
+                        type="button"
+                        class="primary-btn w-100"
+                        onclick="checkCustomer()"
+                    >
+
+                        <i class="bi bi-person-check"></i>
+
+                        Check
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <input type="hidden" name="customer_id" id="customer-id">
+
+    </div>
+
+
+    <!-- ================= PRODUCT SEARCH ================= -->
+
+    <div class="form-panel mt-4">
+
+        <div class="panel-header">
+
+            <h5>
+                Add Products
+            </h5>
+
+        </div>
+
+        <div class="search-box">
+
+            <i class="bi bi-search"></i>
+
+            <input 
+                type="text"
+                id="product-search"
+                class="search-input"
+                placeholder="Search product (minimum 3 characters)"
+            >
+
+        </div>
+
+        <ul id="product-results" class="product-results-list"></ul>
+
+    </div>
+
+
+    <!-- ================= INVOICE TABLE ================= -->
+
+    <div class="form-panel mt-4">
+
+        <div class="panel-header">
+
+            <h5>
+                Invoice Items
+            </h5>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table invoice-table align-middle">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Total</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="invoice-items"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= TOTALS ================= -->
+
+    <div class="totals-panel mt-4">
+
+        <div class="total-row">
+
+            <span>
+                Subtotal
+            </span>
+
+            <strong>
+                ₹ <span id="subtotal">0.00</span>
+            </strong>
+
+        </div>
+
+        <div class="total-row">
+
+            <span>
+                Tax (18%)
+            </span>
+
+            <strong>
+                ₹ <span id="tax">0.00</span>
+            </strong>
+
+        </div>
+
+        <div class="total-row grand-total">
+
+            <span>
+                Grand Total
+            </span>
+
+            <strong>
+                ₹ <span id="total">0.00</span>
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= SUBMIT ================= -->
+
+    <div class="submit-area">
+
+        <button type="submit" class="submit-btn">
+
+            <i class="bi bi-check-circle"></i>
+
+            Create Invoice
+
+        </button>
+
+    </div>
+
+</form>
+
+
+<script>
+
+const taxRate = 0.18;
+
+
+/* ================= CUSTOMER CHECK ================= */
+
+function checkCustomer() {
+
+    const name = document.getElementById('cust-name').value;
+
+    const email = document.getElementById('cust-email').value;
+
+    fetch(`/customers/check/?name=${name}&email=${email}`)
+
+        .then(res => res.json())
+
+        .then(data => {
+
+            if (data.exists) {
+
+                document.getElementById('customer-id').value = data.customer_id;
+
+                document.getElementById('check-customer').innerHTML = `
+                    <div class="success-alert">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Customer Found
+                    </div>
+                `;
+
+            } else {
+
+                window.location.href = "{% url 'customer_add' %}";
+
+            }
+
+        });
+
+}
+
+
+/* ================= PRODUCT SEARCH ================= */
+
+document.getElementById('product-search')
+
+.addEventListener('keyup', function () {
+
+    const query = this.value;
+
+    if (query.length < 3) return;
+
+    fetch(`/products/search/?q=${query}`)
+
+        .then(res => res.json())
+
+        .then(products => {
+
+            let html = '';
+
+            products.forEach(p => {
+
+                html += `
+
+                    <li class="product-item">
+
+                        <div class="product-info">
+
+                            <strong>${p.name}</strong>
+
+                            <span>
+                                ${p.brand}
+                            </span>
+
+                        </div>
+
+                        <div class="product-meta">
+
+                            <span class="price-tag">
+                                ₹${p.price}
+                            </span>
+
+                            <span class="stock-tag">
+                                Stock: ${p.stock}
+                            </span>
+
+                            <input 
+                                type="number"
+                                class="qty-input"
+                                min="1"
+                                placeholder="Qty"
+                            >
+
+                            <button 
+                                type="button"
+                                class="add-btn"
+                                onclick="addProduct(this,'${p.product_id}','${p.name}','${p.brand}', ${p.price}, ${p.stock})"
+                            >
+
+                                Add
+
+                            </button>
+
+                        </div>
+
+                    </li>
+
+                `;
+
+            });
+
+            document.getElementById('product-results').innerHTML = html;
+
+        });
+
+});
+
+
+/* ================= ADD PRODUCT ================= */
+
+function addProduct(button, product_id, name, brand, price, stock) {
+
+    let qtyInput = button.parentElement.querySelector('.qty-input');
+
+    let qty = parseInt(qtyInput.value);
+
+    if (!qty || qty <= 0 || qty > stock) {
+
+        alert('Invalid quantity');
+
+        return;
+
+    }
+
+    const tbody = document.getElementById('invoice-items');
+
+    const row = document.createElement('tr');
+
+    row.setAttribute('data-price', price);
+
+    row.setAttribute('data-stock', stock);
+
+    row.innerHTML = `
+
+        <td>
+            ${name} ${brand}
+        </td>
+
+        <td class="price">
+            ₹${price}
+        </td>
+
+        <td>
+
+            <input 
+                type="number"
+                class="table-qty-input"
+                value="${qty}"
+                min="1"
+                max="${stock}"
+                onchange="updateRow(this)"
+            >
+
+        </td>
+
+        <td class="line-total">
+            ₹${(price * qty).toFixed(2)}
+        </td>
+
+        <td>
+
+            <button 
+                type="button"
+                class="remove-btn"
+                onclick="removeRow(this)"
+            >
+
+                Remove
+
+            </button>
+
+        </td>
+
+        <input type="hidden" name="products[]" value="${product_id}">
+
+        <input 
+            type="hidden"
+            name="quantities[]"
+            value="${qty}"
+            class="hidden-qty"
+        >
+
+    `;
+
+    tbody.appendChild(row);
+
+    qtyInput.value = "";
+
+    calculateTotals();
+
+}
+
+/* ================= REMOVE PRODUCT ================= */
+
+function removeRow(btn) {
+
+    btn.closest('tr').remove();
+
+    calculateTotals();
+
+}
+
+/* ================= UPDATE ROW ================= */
+
+function updateRow(input) {
+
+    const row = input.closest('tr');
+
+    const price = parseFloat(row.dataset.price);
+
+    const stock = parseInt(row.dataset.stock);
+
+    let qty = parseInt(input.value);
+
+    if (qty <= 0 || qty > stock) {
+
+        alert(`Quantity must be between 1 and ${stock}`);
+
+        input.value = 1;
+
+        qty = 1;
+
+    }
+
+    const lineTotal = price * qty;
+
+    row.querySelector('.line-total').innerText =
+        `₹${lineTotal.toFixed(2)}`;
+
+    row.querySelector('.hidden-qty').value = qty;
+
+    calculateTotals();
+
+}
+
+/* ================= TOTAL CALCULATION ================= */
+
+function calculateTotals() {
+
+    let subtotal = 0;
+
+    document.querySelectorAll('#invoice-items tr')
+
+    .forEach(row => {
+
+        subtotal += parseFloat(
+
+            row.querySelector('.line-total')
+
+            .innerText.replace('₹','')
+
+        );
+
+    });
+
+    const tax = subtotal * taxRate;
+
+    const total = subtotal + tax;
+
+    document.getElementById('subtotal').innerText = subtotal.toFixed(2);
+
+    document.getElementById('tax').innerText = tax.toFixed(2);
+
+    document.getElementById('total').innerText = total.toFixed(2);
+
+}
+
+</script>
+
+{% endblock %}

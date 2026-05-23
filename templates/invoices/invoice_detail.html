@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Invoice Details
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/invoice-detail.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+
+<div class="invoice-page-header">
+
+    <div>
+
+        <h2 class="page-title">
+            Invoice Details
+        </h2>
+
+        <p class="page-subtitle">
+            Complete invoice overview and billing information
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- ================= INVOICE DETAILS ================= -->
+
+<div class="invoice-details-card">
+
+    <div class="row g-4">
+
+        <div class="col-md-6">
+
+            <div class="detail-group">
+
+                <p class="detail-item">
+
+                    <span class="detail-label">
+                        Invoice No.
+                    </span>
+
+                    <strong>
+                        {{ invoice.invoice_number }}
+                    </strong>
+
+                </p>
+
+                <div class="detail-divider"></div>
+
+                <p class="detail-item">
+
+                    <span class="detail-label">
+                        Customer Name
+                    </span>
+
+                    <strong>
+                        {{ invoice.customer.name }}
+                    </strong>
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
+
+            <div class="detail-group">
+
+                <p class="detail-item">
+
+                    <span class="detail-label">
+                        Date
+                    </span>
+
+                    <strong>
+                        {{ invoice.date }}
+                    </strong>
+
+                </p>
+
+                <div class="detail-divider"></div>
+
+                <p class="detail-item">
+
+                    <span class="detail-label">
+                        Email
+                    </span>
+
+                    <strong>
+                        {{ invoice.customer.email }}
+                    </strong>
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= PRODUCTS TABLE ================= -->
+
+<div class="invoice-table-card mt-4">
+
+    <div class="table-responsive">
+
+        <table class="table invoice-table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for item in invoice.items.all %}
+
+                <tr>
+
+                    <td>
+
+                        <strong>
+                            {{ item.product.name }}
+                        </strong>
+
+                        <br>
+
+                        <small class="product-brand">
+                            {{ item.product.brand }}
+                        </small>
+
+                    </td>
+
+                    <td>
+                        ₹{{ item.price }}
+                    </td>
+
+                    <td>
+
+                        <span class="qty-badge">
+                            {{ item.quantity }}
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <strong>
+                            ₹{{ item.get_total }}
+                        </strong>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- ================= TOTALS ================= -->
+
+<div class="invoice-summary-card mt-4">
+
+    <div class="summary-row">
+
+        <span>
+            Subtotal
+        </span>
+
+        <strong>
+            ₹{{ invoice.subtotal }}
+        </strong>
+
+    </div>
+
+    <div class="summary-row">
+
+        <span>
+            Tax
+        </span>
+
+        <strong>
+            ₹{{ invoice.tax }}
+        </strong>
+
+    </div>
+
+    <div class="summary-row total-row">
+
+        <span>
+            Grand Total
+        </span>
+
+        <strong>
+            ₹{{ invoice.total }}
+        </strong>
+        <br>
+        <br>
+
+    </div>
+
+
+    <!-- ACTIONS -->
+
+    <div class="invoice-actions">
+
+        {% if not invoice.is_paid %}
+
+            <a 
+                href="{% url 'make_payment' invoice.id %}" 
+                class="payment-btn"
+            >
+
+                <i class="bi bi-credit-card"></i>
+
+                Make Payment
+
+            </a>
+
+        {% else %}
+
+            <div class="payment-success">
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                Payment Completed
+
+            </div>
+
+        {% endif %}
+
+        <br>
+
+        <a 
+            href="{% url 'invoice_pdf' invoice.id %}" 
+            class="download-btn"
+        >
+
+            <i class="bi bi-download"></i>
+
+            Download PDF
+
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

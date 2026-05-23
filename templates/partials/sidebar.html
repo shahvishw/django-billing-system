@@ -1,0 +1,122 @@
+{% load static %}
+
+<!-- Sidebar -->
+
+<aside class="sidebar">
+
+    <!-- Logo -->
+
+    <div class="sidebar-logo">
+
+        <div class="logo-icon">
+            <i class="bi bi-receipt-cutoff"></i>
+        </div>
+
+        <div>
+
+            <h4>
+                InvoicePro
+            </h4>
+
+            <span>
+                Billing Software
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- Navigation -->
+
+    <!-- Navigation -->
+
+    <ul class="sidebar-menu">
+
+        <li>
+
+            <a 
+                href="{% url 'dashboard' %}" 
+                class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+            >
+
+                <i class="bi bi-grid-1x2-fill"></i>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </a>
+
+        </li>
+
+        <li>
+
+            <a 
+                href="{% url 'invoice_list' %}" 
+                class="sidebar-link {% if request.resolver_match.url_name == 'invoice_list' %}active{% endif %}"
+            >
+
+                <i class="bi bi-receipt"></i>
+
+                <span>
+                    Invoices
+                </span>
+
+            </a>
+
+        </li>
+
+        <li>
+
+            <a 
+                href="{% url 'customer_list' %}" 
+                class="sidebar-link {% if request.resolver_match.url_name == 'customer_list' %}active{% endif %}"
+            >
+
+                <i class="bi bi-people-fill"></i>
+
+                <span>
+                    Customers
+                </span>
+
+            </a>
+
+        </li>
+
+    </ul>
+
+
+    <!-- Bottom Menu -->
+
+    <div class="sidebar-bottom">
+
+        {% if user.is_authenticated %}
+
+        <a href="{% url 'logout' %}" class="sidebar-link logout-link">
+
+            <i class="bi bi-box-arrow-left"></i>
+
+            <span>
+                Logout
+            </span>
+
+        </a>
+
+        {% else %}
+
+        <a href="{% url 'login' %}" class="sidebar-link">
+
+            <i class="bi bi-box-arrow-in-right"></i>
+
+            <span>
+                Login
+            </span>
+
+        </a>
+
+        {% endif %}
+
+    </div>
+
+</aside>

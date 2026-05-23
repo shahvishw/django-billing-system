@@ -1,0 +1,64 @@
+<div class="top-navbar">
+
+    <!-- Left -->
+
+    <div>
+
+        <h4 class="page-title">
+            Dashboard
+        </h4>
+
+    </div>
+
+    <!-- Right -->
+
+    <div class="navbar-actions">
+
+        <!-- Search -->
+
+        <div class="search-box">
+
+            <i class="bi bi-search"></i>
+
+            <input
+                type="text"
+                placeholder="Search..."
+            >
+
+        </div>
+
+        <!-- Notification -->
+
+        <button class="notification-btn">
+
+            <i class="bi bi-bell"></i>
+
+        </button>
+
+        <!-- Profile -->
+
+        <div class="profile-box">
+
+            <div class="profile-avatar">
+
+                {{ request.user.username|first|upper }}
+
+            </div>
+
+            <div>
+
+                <h6 class="mb-0">
+                    {{ request.user.username }}
+                </h6>
+
+                <small>
+                    Administrator
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Invoices
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/invoice-list.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+
+<div class="page-header">
+
+    <div>
+
+        <h2 class="page-title">
+            Invoices
+        </h2>
+
+        <p class="page-subtitle">
+            Manage and track all customer invoices
+        </p>
+
+    </div>
+
+    <a href="{% url 'invoice_add' %}" class="primary-btn">
+
+        <i class="bi bi-plus-circle"></i>
+
+        New Invoice
+
+    </a>
+
+</div>
+
+
+<!-- Invoice Table Card -->
+
+<div class="invoice-panel">
+
+    <div class="panel-top">
+
+        <div class="search-box">
+
+            <i class="bi bi-search"></i>
+
+            <input
+                type="text"
+                id="invoiceSearch"
+                placeholder="Search invoices..."
+            >
+
+        </div>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table invoice-table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Invoice No.</th>
+                    <th>Customer</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="invoiceTableBody">
+
+                {% for invoice in invoices %}
+
+                <tr class="invoice-row">
+
+                    <td class="invoice-number">
+                        <strong>
+                            {{ invoice.invoice_number }}
+                        </strong>
+                    </td>
+
+                    <td class="customer-name">
+                        {{ invoice.customer.name }}
+                    </td>
+
+                    <td>
+                        ₹ {{ invoice.total }}
+                    </td>
+
+                    <td class="invoice-status">
+
+                        {% if invoice.is_paid %}
+
+                            <span class="status-badge success-badge">
+                                Paid
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge danger-badge">
+                                Unpaid
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td class="text-end">
+
+                        <a
+                            href="{% url 'invoice_detail' invoice.id %}"
+                            class="action-btn"
+                        >
+
+                            <i class="bi bi-eye"></i>
+
+                            View
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="5" class="empty-state">
+
+                        <i class="bi bi-receipt"></i>
+
+                        <p>
+                            No invoices found
+                        </p>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% block extra_js %}
+<script src="{% static 'js/invoice-search.js' %}"></script>
+{% endblock %}
+
+{% endblock %}

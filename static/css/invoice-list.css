@@ -1,0 +1,228 @@
+/* ===================================
+   PAGE HEADER
+=================================== */
+
+.page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+    gap:20px;
+}
+
+.page-title{
+    font-size:32px;
+    font-weight:700;
+    color:#0f172a;
+    margin-bottom:6px;
+}
+
+.page-subtitle{
+    color:#64748b;
+    margin:0;
+    font-size:15px;
+}
+
+
+/* ===================================
+   BUTTONS
+=================================== */
+
+.primary-btn{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:#2563eb;
+    color:#ffffff;
+    text-decoration:none;
+    padding:14px 20px;
+    border-radius:14px;
+    font-weight:600;
+    transition:0.3s ease;
+    box-shadow:0 8px 20px rgba(37,99,235,0.18);
+}
+
+.primary-btn:hover{
+    background:#1d4ed8;
+    transform:translateY(-2px);
+    color:#ffffff;
+}
+
+
+/* ===================================
+   PANEL
+=================================== */
+
+.invoice-panel{
+    background:#ffffff;
+    border-radius:24px;
+    padding:24px;
+    box-shadow:0 6px 22px rgba(15,23,42,0.05);
+    border:1px solid #f1f5f9;
+}
+
+
+/* ===================================
+   PANEL TOP
+=================================== */
+
+.panel-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:24px;
+}
+
+
+/* ===================================
+   SEARCH
+=================================== */
+
+.search-box{
+    width:320px;
+    max-width:100%;
+    position:relative;
+}
+
+.search-box i{
+    position:absolute;
+    top:50%;
+    left:16px;
+    transform:translateY(-50%);
+    color:#94a3b8;
+}
+
+.search-box input{
+    width:100%;
+    border:none;
+    background:#f8fafc;
+    padding:14px 16px 14px 46px;
+    border-radius:14px;
+    outline:none;
+    transition:0.3s ease;
+    border:1px solid transparent;
+}
+
+.search-box input:focus{
+    border-color:#2563eb;
+    background:#ffffff;
+    box-shadow:0 0 0 4px rgba(37,99,235,0.08);
+}
+
+
+/* ===================================
+   TABLE
+=================================== */
+
+.invoice-table{
+    margin:0;
+}
+
+.invoice-table thead th{
+    border:none;
+    background:#f8fafc;
+    color:#475569;
+    font-size:14px;
+    font-weight:600;
+    padding:16px;
+}
+
+.invoice-table tbody td{
+    border-top:1px solid #f1f5f9;
+    padding:18px 16px;
+    color:#334155;
+    font-weight:500;
+}
+
+.invoice-table tbody tr{
+    transition:0.2s ease;
+}
+
+.invoice-table tbody tr:hover{
+    background:#f8fafc;
+}
+
+
+/* ===================================
+   BADGES
+=================================== */
+
+.status-badge{
+    padding:8px 14px;
+    border-radius:10px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.success-badge{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.danger-badge{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+
+/* ===================================
+   ACTION BUTTON
+=================================== */
+
+.action-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    border-radius:12px;
+    text-decoration:none;
+    background:#eff6ff;
+    color:#2563eb;
+    font-weight:600;
+    transition:0.3s ease;
+}
+
+.action-btn:hover{
+    background:#2563eb;
+    color:#ffffff;
+    transform:translateY(-2px);
+}
+
+
+/* ===================================
+   EMPTY STATE
+=================================== */
+
+.empty-state{
+    text-align:center;
+    padding:60px 20px !important;
+    color:#94a3b8 !important;
+}
+
+.empty-state i{
+    font-size:48px;
+    display:block;
+    margin-bottom:16px;
+}
+
+
+/* ===================================
+   RESPONSIVE
+=================================== */
+
+@media(max-width:768px){
+
+    .page-header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .page-title{
+        font-size:26px;
+    }
+
+    .invoice-panel{
+        padding:20px;
+    }
+
+}

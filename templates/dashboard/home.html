@@ -1,0 +1,290 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvoicePro</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <style>
+        .banner{
+            background: url("{% static 'media/home/home-main.png' %}") center/cover no-repeat;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="nav-home">
+    <div class="nav-container">
+
+        <div class="logo">
+            <img src="{% static 'media/home/logo.png' %}" alt="HisaabKitaab Logo">
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Features</a></li>
+            <li><a href="#">Pricing</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <a href="{% url 'login' %}" class="login">Login</a>
+        </div>
+
+        <div class="menu-toggle">&#9776;</div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="banner">
+    <div class="banner-content">
+        <h1>Welcome to InvoicePro</h1>
+        <p>
+            Smart GST billing and business management software designed for modern Indian businesses.
+        </p>
+        <div class="banner-btn">
+            <a href="{% url 'login' %}" class="cta-btn">
+                <span>Get Started Now</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="stats">
+
+    <div class="stats-container">
+
+        <div class="stat-box">
+            <img src="{% static 'media/home/icons/happy_customer-1.png' %}" alt="Customers">
+            <h3>10K+</h3>
+            <p>Happy Customers</p>
+        </div>
+
+        <div class="stat-box">
+            <img src="{% static 'media/home/icons/phone_icon-1.png' %}" alt="App">
+            <h3>FREE</h3>
+            <p>Android / iOS App</p>
+        </div>
+
+        <div class="stat-box">
+            <img src="{% static 'media/home/icons/multi_device-1.png' %}" alt="Devices">
+            <h3>Multi-Device</h3>
+            <p>Mobile & Desktop Access</p>
+        </div>
+
+        <div class="stat-box">
+            <img src="{% static 'media/home/icons/multi_user-1.png' %}" alt="Users">
+            <h3>Multi-User</h3>
+            <p>User Management Feature</p>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+
+    <!-- Feature 1 -->
+    <div class="container">
+        <div class="feature-image">
+            <img src="{% static 'media/home/feature3.png' %}" alt="GST Billing">
+        </div>
+        <div class="feature-content">
+            <h2>Create Professional Invoices Quickly</h2>
+            <p>
+                Create clean and professional invoices with automatic calculations for subtotal,
+                tax, and total amount. Generate bills faster and maintain organized records
+                for every customer order.
+            </p>
+        </div>
+    </div>
+
+    <!-- Feature 2 -->
+    <div class="container reverse">
+        <div class="feature-image">
+            <img src="{% static 'media/home/feature2.png' %}" alt="Reports">
+        </div>
+        <div class="feature-content">
+            <h2>Automatic Payment Reminders</h2>
+            <p>
+                Automatically monitor pending invoices and send timely payment reminders,
+                helping businesses follow MSME 45-day payment compliance and reduce delayed payments.
+            </p>
+        </div>
+    </div>
+
+    <!-- Feature 3 -->
+    <div class="container">
+        <div class="feature-image">
+            <img src="{% static 'media/home/feature1.png' %}" alt="Inventory">
+        </div>
+        <div class="feature-content">
+            <h2>Smart Product & Inventory Management</h2>
+            <p>
+                Organize products with categories, brands, pricing, stock quantity,
+                and availability status. Keep inventory updated automatically while
+                creating invoices and managing orders.
+            </p>
+        </div>
+    </div>
+
+</section>
+
+<section class="tabs-section">
+
+    <h2 class="tabs-heading">
+        Why InvoicePRO is Perfect for Small Businesses?
+    </h2>
+
+    <div class="tabs-container">
+
+        <!-- LEFT TABS -->
+        <div class="tabs">
+            <div class="tab active">Professional Invoice Generation</div>
+            <div class="tab">Customer & Payment Management</div>
+            <div class="tab">Smart Reminder System</div>
+            <div class="tab">Product & Inventory Control</div>
+            <div class="tab">Business Dashboard & Reports</div>
+            <div class="tab">Fast Billing Workflow</div>
+            <div class="tab">Digital Invoice Sharing</div>
+            <div class="tab">Secure Business Record Management</div>
+        </div>
+
+        <!-- RIGHT CONTENT -->
+        <div class="tab-content">
+
+            <div class="content active">
+                <p>
+                    Generate clean and professional invoices with automatic calculations for subtotal,
+                    taxes, and final amounts. HisaabKitaab simplifies the billing process by helping
+                    businesses create organized invoices quickly while maintaining accurate customer
+                    and transaction records. The system is designed to reduce manual work and improve
+                    daily billing efficiency for modern businesses.
+                </p>
+            </div>
+
+            <div class="content">
+                <p>
+                    Manage customer details, billing history, payment status, and transaction records
+                    from one centralized platform. Businesses can easily track pending and completed
+                    payments without maintaining complex manual registers. This helps improve customer
+                    management and keeps financial records properly organized for daily operations.
+                </p>
+            </div>
+
+            <div class="content">
+                <p>
+                    HisaabKitaab includes a smart reminder system that helps businesses monitor overdue
+                    invoices and pending customer payments. The system supports reminder tracking based
+                    on MSME 45-day payment guidelines, helping businesses follow up on delayed payments
+                    more efficiently and maintain healthier cash flow management.
+                </p>
+            </div>
+
+            <div class="content">
+                <p>
+                    Organize products with categories, pricing, quantity, and stock availability while
+                    maintaining accurate inventory records. The inventory system automatically supports
+                    billing operations by keeping product information structured and helping businesses
+                    manage stock movement more efficiently during invoice creation.
+                </p>
+            </div>
+
+            <div class="content">
+                <p>
+                    Monitor billing activity, invoice records, customer transactions, and payment updates
+                    through a clean business dashboard. The reporting system helps businesses understand
+                    operational performance more effectively while maintaining transparency across invoices,
+                    orders, and financial records.
+                </p>
+            </div>
+
+            <div class="content">
+                <p>
+                    The billing workflow is designed for simplicity and speed, allowing businesses to
+                    create invoices, add products, manage customers, and complete transactions with minimal
+                    effort. HisaabKitaab focuses on reducing repetitive manual processes and improving
+                    overall billing productivity for daily business use.
+                </p>
+            </div>
+
+            <div class="content">
+                <p>
+                    Share invoices and payment information digitally with customers for faster communication
+                    and smoother business interactions. Digital invoice handling reduces paperwork and helps
+                    businesses maintain professional communication while improving customer convenience during
+                    payment and order processing.
+                </p>
+            </div>
+
+            <div class="content">
+                <p>
+                    Maintain secure and organized business records including invoices, customer details,
+                    payment history, and product information in one system. HisaabKitaab helps businesses
+                    keep operational data structured, accessible, and easier to manage for long-term business
+                    growth and record maintenance.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+<section class="footer-new">
+    <div class="footer-container">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <img src="{% static 'media/home/logo.png' %}" alt="HisaabKitaab" class="footer-logo">
+                <p><strong>Smart Billing Software for Every Business.</strong> <br>Create invoices, manage GST, track payments, and run your business—all in one place.</p>
+            </div>
+            <div class="footer-social-icon">
+                <img src="{% static 'media/home/SocialMedia/facebook.png' %}" alt="facebook-logo" class="social-logos">
+                <img src="{% static 'media/home/SocialMedia/instagram.png' %}" alt="instagram-logo" class="social-logos">
+                <img src="{% static 'media/home/SocialMedia/linkedin.png' %}" alt="youtube-logo" class="social-logos">
+                <img src="{% static 'media/home/SocialMedia/twitter.png' %}" alt="linkedin-logo" class="social-logos">
+                <img src="{% static 'media/home/SocialMedia/youtube.png' %}" alt="twitter-logo" class="social-logos">
+            </div>
+        </div>
+        <div class="footer-second">
+            <p><strong>Contact:</strong> +91 xxxxx xxxxx</p>
+            <p><strong>Email:</strong> xyz@xyz.com</p>
+            <p><strong>Address:</strong> Ahmedabad, Gujarat, India</p>
+        </div>
+        <div class="footer-copyright">
+            <h4>© 2026 HisaabKitaab. All rights reserved.</h4>
+        </div>
+    </div> 
+</section>
+
+<!-- SCRIPT -->
+<script>
+    const toggle = document.querySelector('.menu-toggle');
+    const navLinks = document.querySelector('.nav-links');
+
+    toggle.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+    });
+
+    const tabs = document.querySelectorAll(".tab");
+    const contents = document.querySelectorAll(".content");
+
+    tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => {
+
+            tabs.forEach(t => t.classList.remove("active"));
+            contents.forEach(c => c.classList.remove("active"));
+
+            tab.classList.add("active");
+            contents[index].classList.add("active");
+        });
+    });
+
+</script>
+
+</body>
+</html>

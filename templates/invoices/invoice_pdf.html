@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial; }
+        h2 { text-align: center; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td {
+            border: 1px solid #333;
+            padding: 6px;
+            text-align: left;
+        }
+        .right { text-align: right; }
+    </style>
+</head>
+<body>
+
+
+<h2><strong style="font-size: xx-large;">InvoicePRO</strong><br>Yours Own Billing Software</h2>
+
+<p><strong>Invoice No:</strong> {{ invoice.invoice_number }}</p>
+<p><strong>Date:</strong> {{ invoice.date }}</p>
+<br>
+<h4>Bill To</h4>
+<p><strong>Name:</strong> {{ invoice.customer.name }}</p>
+<p><strong>Email:</strong> {{ invoice.customer.email }}</p>
+<p><strong>Address:</strong> {{ invoice.customer.address }}</p>
+<br>
+<table>
+    <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Total</th>
+    </tr>
+    {% for item in invoice.items.all %}
+    <tr>
+        <td>{{ item.product.name }}</td>
+        <td>{{ item.price }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.get_total }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<p class="right">Subtotal: {{ invoice.subtotal }}</p>
+<p class="right">Tax: {{ invoice.tax }}</p>
+<h3 class="right">Total: {{ invoice.total }}</h3>
+
+</body>
+</html>

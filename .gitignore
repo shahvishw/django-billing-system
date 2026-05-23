@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+
+# Virtual Environment
+venv/
+env/
+
+# Environment Variables
+.env
+
+# Static Media
+media/
+
+# VS Code
+.vscode/
+
+# Mac/Linux
+.DS_Store

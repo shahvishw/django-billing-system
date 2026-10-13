@@ -1,231 +1,130 @@
 {% extends "base.html" %}
-{% load static %}
 
-{% block title %}
-
-{% if customer %}
-    Edit Customer
-{% else %}
-    Add Customer
-{% endif %}
-
-{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/customer-form.css' %}">
-{% endblock %}
+{% block title %}{% if customer %}Edit Customer{% else %}Add Customer{% endif %}{% endblock %}
 
 {% block content %}
 
-<!-- ================= PAGE HEADER ================= -->
+<!-- ================= HEADER ================= -->
 
-<div class="customer-page-header">
-
+<div class="ip-page-header">
     <div>
+        <a href="{% url 'customer_list' %}" class="ip-back">
+            <i class="bi bi-arrow-left"></i> Back to customers
+        </a>
 
-        <h2 class="page-title">
+        <h1 class="ip-title">
+            {% if customer %}Edit customer{% else %}Add new customer{% endif %}
+        </h1>
 
+        <p class="ip-subtitle">
             {% if customer %}
-                Edit Customer
+                Update this customer's contact details.
             {% else %}
-                Add New Customer
+                Phone number is used to find the customer quickly while billing.
             {% endif %}
-
-        </h2>
-
-        <p class="page-subtitle">
-
-            {% if customer %}
-                Update existing customer information
-            {% else %}
-                Create and manage customer details
-            {% endif %}
-
         </p>
-
     </div>
-
 </div>
 
 
-<!-- ================= FORM CARD ================= -->
+<div class="row">
+    <div class="col-xl-8">
+        <div class="ip-card">
 
-<div class="customer-form-wrapper">
-
-    <div class="customer-form-card">
-
-        <div class="form-header">
-
-            <div class="header-icon">
-
-                <i class="bi bi-person-lines-fill"></i>
-
+            <div class="ip-card-head">
+                <h5>Customer details</h5>
             </div>
 
-            <div>
+            <div class="ip-card-body">
 
-                <h5>
+                <form method="post" class="ip-form" novalidate>
+                    {% csrf_token %}
 
-                    {% if customer %}
-                        Customer Details
-                    {% else %}
-                        New Customer Details
-                    {% endif %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-danger">{{ error }}</div>
+                    {% endfor %}
 
-                </h5>
+                    <div class="row g-3">
 
-                <p>
-                    Fill all required customer information
-                </p>
+                        <!-- NAME -->
+                        <div class="col-md-6">
+                            <label for="id_name">Full name</label>
+                            <input
+                                type="text"
+                                id="id_name"
+                                name="name"
+                                value="{{ form.name.value|default:'' }}"
+                                placeholder="e.g. Ravi Patel"
+                                required
+                            >
+                            {% for error in form.name.errors %}
+                                <div class="ip-error">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- PHONE -->
+                        <div class="col-md-6">
+                            <label for="id_phone">Phone number</label>
+                            <input
+                                type="tel"
+                                id="id_phone"
+                                name="phone"
+                                value="{{ form.phone.value|default:'' }}"
+                                placeholder="e.g. 98765 43210"
+                                required
+                            >
+                            {% for error in form.phone.errors %}
+                                <div class="ip-error">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- EMAIL -->
+                        <div class="col-12">
+                            <label for="id_email">
+                                Email address <span class="ip-muted fw-normal">(optional)</span>
+                            </label>
+                            <input
+                                type="email"
+                                id="id_email"
+                                name="email"
+                                value="{{ form.email.value|default:'' }}"
+                                placeholder="name@example.com"
+                            >
+                            <div class="ip-hint">Needed only if you want invoices emailed to this customer.</div>
+                            {% for error in form.email.errors %}
+                                <div class="ip-error">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- ADDRESS -->
+                        <div class="col-12">
+                            <label for="id_address">Address</label>
+                            <textarea
+                                id="id_address"
+                                name="address"
+                                rows="4"
+                                placeholder="Street, area, city, PIN code"
+                            >{{ form.address.value|default:'' }}</textarea>
+                            {% for error in form.address.errors %}
+                                <div class="ip-error">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+
+                    <div class="ip-form-actions">
+                        <a href="{% url 'customer_list' %}" class="ip-btn ip-btn-secondary">Cancel</a>
+                        <button type="submit" class="ip-btn ip-btn-primary">
+                            <i class="bi bi-check-circle"></i>
+                            {% if customer %}Update customer{% else %}Save customer{% endif %}
+                        </button>
+                    </div>
+
+                </form>
 
             </div>
-
         </div>
-
-
-        <!-- ================= FORM ================= -->
-
-        <form method="post" novalidate>
-
-            {% csrf_token %}
-
-
-            <!-- FULL NAME -->
-
-            <div class="form-group">
-
-                <label class="form-label">
-                    Full Name
-                </label>
-
-                <div class="input-wrapper">
-
-                    <i class="bi bi-person"></i>
-
-                    <input
-                        type="text"
-                        name="name"
-                        class="custom-input"
-                        value="{{ customer.name|default:'' }}"
-                        placeholder="Enter customer full name"
-                        required
-                    >
-
-                </div>
-
-            </div>
-
-
-            <!-- EMAIL -->
-
-            <div class="form-group">
-
-                <label class="form-label">
-                    Email Address
-                </label>
-
-                <div class="input-wrapper">
-
-                    <i class="bi bi-envelope"></i>
-
-                    <input
-                        type="email"
-                        name="email"
-                        class="custom-input"
-                        value="{{ customer.email|default:'' }}"
-                        placeholder="Enter customer email"
-                        required
-                    >
-
-                </div>
-
-            </div>
-
-
-            <!-- PHONE -->
-
-            <div class="form-group">
-
-                <label class="form-label">
-                    Phone Number
-                </label>
-
-                <div class="input-wrapper">
-
-                    <i class="bi bi-telephone"></i>
-
-                    <input
-                        type="text"
-                        name="phone"
-                        class="custom-input"
-                        value="{{ customer.phone|default:'' }}"
-                        placeholder="Enter phone number"
-                    >
-
-                </div>
-
-            </div>
-
-
-            <!-- ADDRESS -->
-
-            <div class="form-group">
-
-                <label class="form-label">
-                    Address
-                </label>
-
-                <div class="textarea-wrapper">
-
-                    <i class="bi bi-geo-alt"></i>
-
-                    <textarea
-                        name="address"
-                        class="custom-textarea"
-                        rows="4"
-                        placeholder="Enter customer address"
-                    >{{ customer.address|default:'' }}</textarea>
-
-                </div>
-
-            </div>
-
-
-            <!-- ACTIONS -->
-
-            <div class="form-actions">
-
-                <a 
-                    href="{% url 'customer_list' %}" 
-                    class="cancel-btn"
-                >
-
-                    Cancel
-
-                </a>
-
-
-                <button 
-                    type="submit"
-                    class="save-btn"
-                >
-
-                    <i class="bi bi-check-circle"></i>
-
-                    {% if customer %}
-                        Update Customer
-                    {% else %}
-                        Save Customer
-                    {% endif %}
-
-                </button>
-
-            </div>
-
-        </form>
-
     </div>
-
 </div>
 
 {% endblock %}

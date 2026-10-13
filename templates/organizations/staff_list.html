@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Staff Management{% endblock %}
+
+{% block content %}
+
+<!-- ================= HEADER ================= -->
+
+<div class="ip-page-header">
+    <div>
+        <h1 class="ip-title">Staff</h1>
+        <p class="ip-subtitle">Create accounts, assign roles and control access to your organization.</p>
+    </div>
+
+    <a href="{% url 'staff_add' %}" class="ip-btn ip-btn-primary">
+        <i class="bi bi-person-plus"></i>
+        Add staff member
+    </a>
+</div>
+
+
+<div class="ip-card">
+
+    <form method="get" class="ip-toolbar ip-list-filters">
+        <div class="ip-search">
+            <i class="bi bi-search"></i>
+            <input type="search" name="q" value="{{ query }}" placeholder="Search username or email" aria-label="Search staff">
+        </div>
+        <select name="role" class="ip-input" aria-label="Filter by role">
+            <option value="all" {% if role == 'all' %}selected{% endif %}>All roles</option>
+            <option value="manager" {% if role == 'manager' %}selected{% endif %}>Manager</option>
+            <option value="staff" {% if role == 'staff' %}selected{% endif %}>Staff</option>
+            <option value="accountant" {% if role == 'accountant' %}selected{% endif %}>Accountant</option>
+        </select>
+        <select name="status" class="ip-input" aria-label="Filter by access status">
+            <option value="all" {% if status == 'all' %}selected{% endif %}>All access</option>
+            <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+        </select>
+        <button type="submit" class="ip-btn ip-btn-secondary">Filter</button>
+        <a href="{% url 'staff_list' %}" class="ip-btn ip-btn-secondary">Clear</a>
+    </form>
+
+    {% if staff_memberships %}
+
+        <div class="table-responsive">
+            <table class="ip-table">
+
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Role</th>
+                        <th>Access</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for membership in staff_memberships %}
+                        <tr>
+
+                            <td>
+                                <div class="ip-person">
+                                    <div class="ip-avatar-sm">{{ membership.login_username|default:membership.user.username|slice:":1"|upper }}</div>
+                                    <div>
+                                        <strong class="text-dark">{{ membership.login_username|default:membership.user.username }}</strong>
+                                        <div class="ip-muted small">{{ membership.user.email|default:"—" }}</div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="ip-badge ip-badge-info">{{ membership.get_role_display }}</span>
+                            </td>
+
+                            <td>
+                                {% if membership.is_active %}
+                                    <span class="ip-badge ip-badge-success">Active</span>
+                                {% else %}
+                                    <span class="ip-badge ip-badge-neutral">Inactive</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div class="ip-actions">
+                                    {% if membership.is_active %}
+
+                                        <a href="{% url 'staff_edit' membership.pk %}"
+                                           class="ip-btn ip-btn-secondary ip-btn-sm">
+                                            <i class="bi bi-pencil"></i> Edit role
+                                        </a>
+
+                                        <form
+                                            method="post"
+                                            action="{% url 'staff_deactivate' membership.pk %}"
+                                            class="d-inline"
+                                            onsubmit="return confirm('Deactivate {{ membership.login_username|default:membership.user.username|escapejs }}? They will no longer be able to use this organization.');"
+                                        >
+                                            {% csrf_token %}
+                                            <button type="submit" class="ip-btn ip-btn-danger ip-btn-sm">
+                                                Deactivate
+                                            </button>
+                                        </form>
+
+                                    {% else %}
+                                        <form
+                                            method="post"
+                                            action="{% url 'staff_activate' membership.pk %}"
+                                            class="d-inline"
+                                            onsubmit="return confirm('Restore access for {{ membership.login_username|default:membership.user.username|escapejs }}?');"
+                                        >
+                                            {% csrf_token %}
+                                            <button type="submit" class="ip-btn ip-btn-secondary ip-btn-sm">
+                                                Activate
+                                            </button>
+                                        </form>
+
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+
+    {% else %}
+
+        <div class="ip-empty">
+            <i class="bi bi-people"></i>
+            <h5>{% if query or role != 'all' or status != 'all' %}No staff match these filters{% else %}No staff accounts yet{% endif %}</h5>
+            <p>{% if query or role != 'all' or status != 'all' %}Try changing your search or filters.{% else %}Add managers, staff or accountants so your team can work in InvoicePRO.{% endif %}</p>
+            <a href="{% url 'staff_add' %}" class="ip-btn ip-btn-primary">
+                <i class="bi bi-person-plus"></i> Add staff member
+            </a>
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,138 @@
+{% load static money pdf_tags %}<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Invoice {{ invoice.invoice_number }}</title>
+<style>
+
+    @page {
+        size: a4 portrait;
+        background-image: url("{% static 'pdf/img/minimal_bg.png' %}");
+        @frame content { left: 16mm; top: 16mm; width: 178mm; height: 256mm; }
+        @frame footer  { -pdf-frame-content: pdfFooter; left: 16mm; top: 276mm; width: 178mm; height: 14mm; }
+    }
+
+    body { font-family: Helvetica; font-size: 11pt; color: #1c1c1c; line-height: 130%; }
+    table { width: 100%; border-collapse: collapse; }
+    td, th { padding: 0; vertical-align: top; }
+    th { text-align: left; }
+    .r { text-align: right; }
+    .c { text-align: center; }
+    .muted { color: #6b6b6b; }
+    .org-name { font-size: 19pt; font-weight: bold; color: #111111; }
+    .lbl { font-weight: bold; }
+    .sp { font-size: 1pt; line-height: 16pt; }
+
+    .items th { padding: 7px 6px; font-size: 11pt; font-weight: bold; border-top: 1pt dotted #555555; border-bottom: 1pt dotted #555555; }
+    .items td { padding: 6px 6px 4px 6px; }
+    .item-sub { font-size: 8.5pt; color: #7a7a7a; }
+    .end td { border-top: 1pt dotted #555555; padding-top: 4px; }
+    .totals td { padding: 3px 6px; }
+    .grand td { padding: 6px; font-weight: bold; font-size: 17pt; }
+    .sig-box { border-bottom: 0.8pt dotted #777777; height: 40pt; text-align: center; padding: 5px; }
+    .thanks { font-weight: bold; text-align: center; padding-top: 5px; }
+    .st-paid { color: #2f7d4f; font-weight: bold; }
+    .st-partially_paid { color: #b7791f; font-weight: bold; }
+    .st-overdue { color: #b83a2e; font-weight: bold; }
+    .st-unpaid { color: #444444; font-weight: bold; }
+    .foot-rule { border-top: 1pt dotted #555555; padding-top: 8px; text-align: center; color: #6b6b6b; font-size: 10pt; }
+</style>
+</head>
+<body>
+
+{# ---------- Header: business block on the right ---------- #}
+<table>
+<tr>
+    <td style="width: 45%;"></td>
+    <td class="r">
+        {% if invoice.organization.logo %}<img src="{{ invoice.organization.logo.url }}" {{ invoice.organization.logo|fit_image:"150,54" }}><br>{% endif %}
+        <span class="org-name">{{ invoice.organization.name }}</span>
+        <br><span class="muted">
+            {% if invoice.organization.address %}{{ invoice.organization.address|linebreaksbr }}<br>{% endif %}
+            {% if invoice.organization.phone %}{{ invoice.organization.phone }}{% endif %}{% if invoice.organization.phone and invoice.organization.email %} &middot; {% endif %}{{ invoice.organization.email }}
+            {% if invoice.organization.tax_id %}<br>{{ invoice.organization.tax_id }}{% endif %}
+        </span>
+    </td>
+</tr>
+</table>
+
+<div class="sp">&nbsp;</div><div class="sp">&nbsp;</div>
+
+{# ---------- Invoice no + bill to / dates ---------- #}
+<table>
+<tr>
+    <td style="width: 55%; padding-right: 14px;">
+        <table>
+            <tr><td class="lbl" style="width: 26%;">Invoice No:</td><td>{{ invoice.invoice_number }}</td></tr>
+        </table>
+        <br>
+        <table>
+            <tr>
+                <td class="lbl" style="width: 26%;">Bill to:</td>
+                <td><b>{{ invoice.customer.name }}</b><br>{{ invoice.customer.address|linebreaksbr }}{% if invoice.customer.phone %}<br>{{ invoice.customer.phone }}{% endif %}{% if invoice.customer.email %}<br>{{ invoice.customer.email }}{% endif %}</td>
+            </tr>
+        </table>
+    </td>
+    <td style="width: 45%;">
+        <table>
+            <tr><td class="r lbl">Date:</td><td class="r" style="width: 45%;">{{ invoice.date|date:"d F, Y" }}</td></tr>
+            {% if invoice.due_date %}<tr><td class="r lbl">Due Date:</td><td class="r">{{ invoice.due_date|date:"d F, Y" }}</td></tr>{% endif %}
+            <tr><td class="r lbl">Status:</td><td class="r st-{{ invoice.payment_status }}">{{ invoice|status_label }}</td></tr>
+        </table>
+    </td>
+</tr>
+</table>
+
+<div class="sp">&nbsp;</div>
+
+{# ---------- Items (numbered) ---------- #}
+<table class="items" repeat="1">
+<thead>
+<tr>
+    <th class="c" style="width: 7%;">Item</th>
+    <th style="width: 34%;">Description</th>
+    <th class="r" style="width: 18%;">MRP</th>
+    <th class="c" style="width: 8%;">Qty</th>
+    <th class="c" style="width: 13%;">Discount</th>
+    <th class="r" style="width: 20%;">Amount</th>
+</tr>
+</thead>
+{% for item in invoice.items.all %}
+<tr>
+    <td class="c">{{ forloop.counter }}.</td>
+    <td>{{ item.item_name }}{% if item.catalog_item.brand %}<br><span class="item-sub">{{ item.catalog_item.brand }}</span>{% endif %}</td>
+    <td class="r">{{ item.mrp }} Rs.</td>
+    <td class="c">{{ item.quantity }}</td>
+    <td class="c">{% if item.discount_percent %}{{ item.discount_percent|floatformat:"-2" }}%{% else %}&ndash;{% endif %}</td>
+    <td class="r">{{ item.get_total }} Rs.</td>
+</tr>
+{% endfor %}
+<tr class="end"><td colspan="6" style="border-top: 1pt dotted #555555; font-size: 2pt;">&nbsp;</td></tr>
+</table>
+
+<table>
+<tr>
+    <td style="width: 46%; padding-top: 16px; padding-right: 22px;">
+        <div class="sig-box">{% if invoice.organization.authorized_signature %}<img src="{{ invoice.organization.authorized_signature.url }}" {{ invoice.organization.authorized_signature|fit_image:"150,40" }}>{% else %}&nbsp;{% endif %}</div>
+        <div class="thanks">THANK YOU</div>
+    </td>
+    <td style="width: 54%;">
+        <table class="totals">
+            <tr><td class="muted">Subtotal</td><td class="r">{{ invoice.subtotal }} Rs.</td></tr>
+            {% if invoice.discount_amount %}
+            <tr><td class="muted">Discount{% if invoice.discount_percent %} ({{ invoice.discount_percent|floatformat:"-2" }}%){% endif %}</td><td class="r">-{{ invoice.discount_amount }} Rs.</td></tr>
+            {% endif %}
+            <tr><td class="muted">Tax ({{ invoice.tax_rate_percent|floatformat:"-2" }}%)</td><td class="r">{{ invoice.tax }} Rs.</td></tr>
+        </table>
+        <table class="grand"><tr><td>Total</td><td class="r">{{ invoice.total }} Rs.</td></tr></table>
+        <table class="totals">
+            <tr><td class="muted">Amount paid</td><td class="r">{{ invoice.amount_paid }} Rs.</td></tr>
+            <tr><td class="lbl">Balance due</td><td class="r lbl">{{ invoice.balance_due }} Rs.</td></tr>
+        </table>
+    </td>
+</tr>
+</table>
+
+<div id="pdfFooter"><div class="foot-rule">Powered By InvoicePro</div></div>
+</body>
+</html>

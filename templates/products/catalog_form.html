@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}{% if item %}Edit catalog item{% else %}Add catalog item{% endif %}{% endblock %}
+
+{% block content %}
+<div class="ip-page-header">
+    <div>
+        <a href="{% url 'catalog_list' %}" class="ip-back">
+            <i class="bi bi-arrow-left"></i> Back to catalog
+        </a>
+        <h1 class="ip-title">{% if item %}Edit catalog item{% else %}Add catalog item{% endif %}</h1>
+        <p class="ip-subtitle">Set the price, discount limits, and stock used when creating invoices.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="ip-card">
+            <div class="ip-card-head"><h5>Item details</h5></div>
+            <div class="ip-card-body">
+                <form method="post" class="ip-form" novalidate>
+                    {% csrf_token %}
+
+                    {% for error in form.non_field_errors %}
+                        <div class="ip-error">{{ error }}</div>
+                    {% endfor %}
+
+                    <div class="row g-3">
+                        {% for field in form %}
+                            <div class="col-md-6" {% if field.name == 'stock_quantity' %}data-stock-field{% endif %}>
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}<div class="ip-hint">{{ field.help_text }}</div>{% endif %}
+                                {% for error in field.errors %}<div class="ip-error">{{ error }}</div>{% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="ip-form-actions">
+                        <a href="{% url 'catalog_list' %}" class="ip-btn ip-btn-secondary">Cancel</a>
+                        <button type="submit" class="ip-btn ip-btn-primary">
+                            <i class="bi bi-check-circle"></i>
+                            {% if item %}Save changes{% else %}Create item{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        var itemType = document.getElementById('id_item_type');
+        var stockField = document.querySelector('[data-stock-field]');
+        if (!itemType || !stockField) return;
+
+        var stockInput = stockField.querySelector('input, select');
+        function updateStockField() {
+            var isService = itemType.value === 'service';
+            stockField.hidden = isService;
+            if (stockInput) stockInput.disabled = isService;
+        }
+
+        itemType.addEventListener('change', updateStockField);
+        updateStockField();
+    })();
+</script>
+{% endblock %}

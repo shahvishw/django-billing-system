@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Organization Settings{% endblock %}
+
+{% block content %}
+
+<!-- ================= HEADER ================= -->
+
+<div class="ip-page-header">
+    <div>
+        <h1 class="ip-title">Organization settings</h1>
+        <p class="ip-subtitle">Your business details, branding and invoice preferences.</p>
+    </div>
+</div>
+
+
+<form method="post" enctype="multipart/form-data" class="ip-form" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="ip-notice ip-notice-danger mb-3">
+            <i class="bi bi-x-circle-fill"></i>
+            <div>{{ form.non_field_errors }}</div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-xl-9">
+
+            <!-- ================= BUSINESS DETAILS ================= -->
+
+            <div class="ip-card mb-4">
+                <div class="ip-card-head"><h5>Business details</h5></div>
+                <div class="ip-card-body">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            {% include 'partials/form_field.html' with field=form.name %}
+                        </div>
+
+                        <div class="col-md-6">
+                            {% include 'partials/form_field.html' with field=form.phone %}
+                        </div>
+
+                        <div class="col-md-6">
+                            {% include 'partials/form_field.html' with field=form.email %}
+                        </div>
+
+                        <div class="col-md-6">
+                            {% include 'partials/form_field.html' with field=form.tax_id %}
+                        </div>
+
+                        <div class="col-12">
+                            {% include 'partials/form_field.html' with field=form.address %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ================= BRANDING ================= -->
+
+            <div class="ip-card mb-4">
+                <div class="ip-card-head"><h5>Branding</h5></div>
+                <div class="ip-card-body">
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+                            <label for="{{ form.logo.id_for_label }}">{{ form.logo.label }}</label>
+
+                            {% if form.instance.logo %}
+                                <div class="ip-preview"><img src="{{ form.instance.logo.url }}" alt="Current logo"></div>
+                            {% endif %}
+
+                            <div class="ip-file"><input type="file" name="{{ form.logo.html_name }}" id="{{ form.logo.id_for_label }}" accept="image/png,image/jpeg,image/webp"></div>
+                            {% if form.instance.logo %}
+                                <label class="ip-check" for="logo-clear_id"><input type="checkbox" name="logo-clear" id="logo-clear_id"> Remove current logo</label>
+                            {% endif %}
+                            <div class="ip-hint">PNG or JPG, up to 2 MB. Shown on your invoices.</div>
+                            {% for error in form.logo.errors %}<div class="ip-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.authorized_signature.id_for_label }}">{{ form.authorized_signature.label }}</label>
+
+                            {% if form.instance.authorized_signature %}
+                                <div class="ip-preview"><img src="{{ form.instance.authorized_signature.url }}" alt="Current signature"></div>
+                            {% endif %}
+
+                            <div class="ip-file"><input type="file" name="{{ form.authorized_signature.html_name }}" id="{{ form.authorized_signature.id_for_label }}" accept="image/png,image/jpeg,image/webp"></div>
+                            {% if form.instance.authorized_signature %}
+                                <label class="ip-check" for="authorized_signature-clear_id"><input type="checkbox" name="authorized_signature-clear" id="authorized_signature-clear_id"> Remove current signature</label>
+                            {% endif %}
+                            <div class="ip-hint">PNG or JPG, up to 2 MB. Printed at the bottom of invoices.</div>
+                            {% for error in form.authorized_signature.errors %}<div class="ip-error">{{ error }}</div>{% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ================= INVOICE TEMPLATE ================= -->
+
+            <div class="ip-card mb-4">
+                <div class="ip-card-head"><h5>Invoice template</h5></div>
+                <div class="ip-card-body">
+
+                    <p class="ip-hint mb-3">Pick how your invoice PDFs look. Each new invoice keeps the design it was created with.</p>
+
+                    <div class="ip-choices ip-tpl-choices">
+                        {% for radio in form.invoice_template %}
+                            <label class="ip-choice" for="{{ radio.id_for_label }}">
+                                {{ radio.tag }}
+                                <span class="ip-tpl-thumb ip-tpl-{{ radio.data.value }}" aria-hidden="true">
+                                    <i class="hd"></i><i class="th"></i><i class="ln1"></i><i class="ln2"></i><i class="ln3"></i><i class="tot"></i>
+                                </span>
+                                <div>
+                                    <strong>{{ radio.choice_label }}</strong>
+                                    <span>
+                                        {% if radio.data.value == 'classic' %}Warm, centred header with a soft shaded table.
+                                        {% elif radio.data.value == 'modern' %}Bold teal and charcoal corner bands.
+                                        {% else %}Light grey accents, dotted rules, numbered items.
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </label>
+                        {% endfor %}
+                    </div>
+
+                    {% for error in form.invoice_template.errors %}<div class="ip-error">{{ error }}</div>{% endfor %}
+
+                </div>
+            </div>
+
+
+            <!-- ================= DISCOUNT RULES ================= -->
+
+            <div class="ip-card mb-4">
+                <div class="ip-card-head"><h5>Tax</h5></div>
+                <div class="ip-card-body">
+                    {% include 'partials/form_field.html' with field=form.tax_rate_percent %}
+                    <p class="ip-hint mt-2 mb-0">This rate is saved on each new invoice. Confirm the applicable tax rate and treatment for your business.</p>
+                </div>
+            </div>
+
+            <div class="ip-card mb-4">
+                <div class="ip-card-head"><h5>Discount rules</h5></div>
+                <div class="ip-card-body">
+                    <p class="ip-hint mb-3">Choose how discounts are entered when creating an invoice.</p>
+                    <div class="ip-choices ip-choices-2">
+                        {% for value, label in form.discount_mode.field.choices %}
+                            <label class="ip-choice" for="id_discount_mode_{{ forloop.counter0 }}">
+                                <input type="radio" name="{{ form.discount_mode.html_name }}" id="id_discount_mode_{{ forloop.counter0 }}" value="{{ value }}" {% if form.discount_mode.value == value %}checked{% endif %}>
+                                <div>
+                                    <strong>{{ label }}</strong>
+                                    <span>
+                                        {% if value == 'per_item' %}Each product can have its own discount up to that product's maximum.
+                                        {% else %}Apply one discount percentage to the complete selling-price subtotal.{% endif %}
+                                    </span>
+                                </div>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    {% for error in form.discount_mode.errors %}<div class="ip-error">{{ error }}</div>{% endfor %}
+                </div>
+            </div>
+
+
+            <!-- ================= AUTOMATION ================= -->
+
+            <div class="ip-card mb-4">
+                <div class="ip-card-head"><h5>Email and reminders</h5></div>
+                <div class="ip-card-body">
+
+                    <div class="ip-switch-row">
+                        <div>
+                            <strong>Email invoices to customers</strong>
+                            <small>Send the invoice to the customer's email when it is created.</small>
+                        </div>
+                        <div class="form-check form-switch mb-0">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                role="switch"
+                                id="{{ form.email_invoices_to_customers.id_for_label }}"
+                                name="{{ form.email_invoices_to_customers.html_name }}"
+                                {% if form.email_invoices_to_customers.value %}checked{% endif %}
+                            >
+                        </div>
+                    </div>
+
+                    <div class="ip-switch-row">
+                        <div>
+                            <strong>Send payment reminders</strong>
+                            <small>Remind customers about unpaid invoices.</small>
+                        </div>
+                        <div class="form-check form-switch mb-0">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                role="switch"
+                                id="{{ form.send_payment_reminders.id_for_label }}"
+                                name="{{ form.send_payment_reminders.html_name }}"
+                                {% if form.send_payment_reminders.value %}checked{% endif %}
+                            >
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="ip-form-actions" style="border-top: 0; padding-top: 0;">
+                <button type="submit" class="ip-btn ip-btn-primary">
+                    <i class="bi bi-check-circle"></i> Save settings
+                </button>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+{% endblock %}

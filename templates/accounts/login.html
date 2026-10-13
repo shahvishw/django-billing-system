@@ -1,145 +1,90 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
+{% extends "accounts/auth_base.html" %}
 
-<head>
+{% block title %}Log in{% endblock %}
 
-    <meta charset="UTF-8">
+{% block heading %}Welcome back{% endblock %}
+{% block subheading %}Log in to continue to your dashboard.{% endblock %}
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+{% block content %}
 
-    <title>
-        Login | HisaabKitaab
-    </title>
+{% if error %}
+    <div class="ip-notice ip-notice-danger mb-3">
+        <i class="bi bi-x-circle-fill"></i>
+        <div>{{ error }}</div>
+    </div>
+{% endif %}
 
-    <!-- Bootstrap -->
+<form method="post" class="ip-form">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next_url }}">
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
-    <!-- Bootstrap Icons -->
-
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-    >
-
-    <!-- Google Font -->
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
-
-    <!-- Custom CSS -->
-
-    <link
-        rel="stylesheet"
-        href="{% static 'css/login.css' %}"
-    >
-
-</head>
-
-<body>
-
-<div class="login-page">
-
-    <div class="login-card">
-
-        <!-- ================= HEADER ================= -->
-
-        <div class="login-header">
-
-            <div class="login-icon">
-
-                <i class="bi bi-receipt"></i>
-
-            </div>
-
-            <h2>
-                Welcome Back
-            </h2>
-
-            <p>
-                Login to continue to your dashboard
-            </p>
-
-        </div>
-
-
-        <!-- ================= FORM ================= -->
-
-        <form method="post">
-
-            {% csrf_token %}
-
-            <div class="form-group">
-
-                <label>
-                    Username
-                </label>
-
-                <div class="input-wrapper">
-
-                    <i class="bi bi-person"></i>
-
-                    <input
-                        type="text"
-                        name="username"
-                        class="form-control"
-                        placeholder="Enter username"
-                        required
-                    >
-
-                </div>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Password
-                </label>
-
-                <div class="input-wrapper">
-
-                    <i class="bi bi-lock"></i>
-
-                    <input
-                        type="password"
-                        name="password"
-                        class="form-control"
-                        placeholder="Enter password"
-                        required
-                    >
-
-                </div>
-
-            </div>
-
-
-            <button
-                type="submit"
-                class="login-btn"
-            >
-
-                <i class="bi bi-box-arrow-in-right"></i>
-
-                Login
-
-            </button>
-
-        </form>
-
+    <div class="mb-3">
+        <label for="id_username">Username</label>
+        <input
+            type="text"
+            id="id_username"
+            name="username"
+            value="{{ username }}"
+            placeholder="Enter your username"
+            autocomplete="username"
+            autofocus
+            required
+        >
     </div>
 
-</div>
+    <div class="mb-3">
+        <label for="id_organization">Organization name or ID <span class="ip-muted">(optional)</span></label>
+        <input
+            type="text"
+            id="id_organization"
+            name="organization"
+            value="{{ organization }}"
+            placeholder="Enter your organization name or ID"
+            autocomplete="organization"
+        >
+        <div class="ip-hint">Leave this blank unless you use the same username and password in more than one organization. If prompted, enter your organization name or ID.</div>
+    </div>
 
-</body>
-</html>
+    <div class="mb-4">
+        <label for="id_password">Password</label>
+        <div class="ip-pw">
+            <input
+                type="password"
+                id="id_password"
+                name="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                required
+            >
+            <button type="button" id="togglePw" aria-label="Show or hide password">
+                <i class="bi bi-eye"></i>
+            </button>
+        </div>
+    </div>
+
+    <button type="submit" class="ip-btn ip-btn-primary ip-btn-block">
+        <i class="bi bi-box-arrow-in-right"></i> Log in
+    </button>
+</form>
+
+<p class="ip-auth-switch">
+    New to InvoicePRO?
+    <a href="{% url 'register' %}">Create your business account</a>
+</p>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+    (function () {
+        var btn = document.getElementById('togglePw');
+        var input = document.getElementById('id_password');
+        btn.addEventListener('click', function () {
+            var show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            btn.querySelector('i').className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+        });
+    })();
+</script>
+{% endblock %}

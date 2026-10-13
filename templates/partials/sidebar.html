@@ -1,122 +1,94 @@
-{% load static %}
+{% with page=request.resolver_match.url_name %}
 
-<!-- Sidebar -->
+<aside class="ip-sidebar" id="ipSidebar">
 
-<aside class="sidebar">
+    <!-- Brand -->
+    <a href="{% url 'dashboard' %}" class="ip-brand">
+        <span class="ip-brand-icon"><i class="bi bi-receipt-cutoff"></i></span>
+        <span class="ip-brand-name">
+            InvoicePro
+            <span class="ip-brand-tag">Billing Software</span>
+        </span>
+    </a>
 
-    <!-- Logo -->
+    <!-- Main menu -->
+    <div class="ip-nav-label">Main</div>
 
-    <div class="sidebar-logo">
-
-        <div class="logo-icon">
-            <i class="bi bi-receipt-cutoff"></i>
-        </div>
-
-        <div>
-
-            <h4>
-                InvoicePro
-            </h4>
-
-            <span>
-                Billing Software
-            </span>
-
-        </div>
-
-    </div>
-
-
-    <!-- Navigation -->
-
-    <!-- Navigation -->
-
-    <ul class="sidebar-menu">
+    <ul class="ip-nav">
 
         <li>
-
-            <a 
-                href="{% url 'dashboard' %}" 
-                class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
-            >
-
-                <i class="bi bi-grid-1x2-fill"></i>
-
-                <span>
-                    Dashboard
-                </span>
-
+            <a href="{% url 'dashboard' %}"
+               class="{% if page == 'dashboard' %}active{% endif %}">
+                <i class="bi bi-grid-1x2"></i>
+                <span>Dashboard</span>
             </a>
-
         </li>
 
         <li>
-
-            <a 
-                href="{% url 'invoice_list' %}" 
-                class="sidebar-link {% if request.resolver_match.url_name == 'invoice_list' %}active{% endif %}"
-            >
-
+            <a href="{% url 'invoice_list' %}"
+               class="{% if page == 'invoice_list' or page == 'invoice_add' or page == 'invoice_detail' or page == 'make_payment' %}active{% endif %}">
                 <i class="bi bi-receipt"></i>
-
-                <span>
-                    Invoices
-                </span>
-
+                <span>Invoices</span>
             </a>
-
         </li>
 
+        {% if request.membership.role == 'owner' or request.membership.role == 'manager' or request.membership.role == 'staff' %}
+            <li>
+                <a href="{% url 'catalog_list' %}"
+                   class="{% if page == 'catalog_list' or page == 'catalog_add' or page == 'catalog_edit' %}active{% endif %}">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Catalog</span>
+                </a>
+            </li>
+        {% endif %}
+
         <li>
-
-            <a 
-                href="{% url 'customer_list' %}" 
-                class="sidebar-link {% if request.resolver_match.url_name == 'customer_list' %}active{% endif %}"
-            >
-
-                <i class="bi bi-people-fill"></i>
-
-                <span>
-                    Customers
-                </span>
-
+            <a href="{% url 'customer_list' %}"
+               class="{% if page == 'customer_list' or page == 'customer_add' or page == 'customer_edit' %}active{% endif %}">
+                <i class="bi bi-people"></i>
+                <span>Customers</span>
             </a>
-
         </li>
 
     </ul>
 
+    <!-- Owner-only menu (same condition as your old sidebar) -->
+    {% if request.membership.role == 'owner' %}
 
-    <!-- Bottom Menu -->
+        <div class="ip-nav-label">Administration</div>
 
-    <div class="sidebar-bottom">
+        <ul class="ip-nav">
 
-        {% if user.is_authenticated %}
+            <li>
+                <a href="{% url 'staff_list' %}"
+                   class="{% if page == 'staff_list' or page == 'staff_add' or page == 'staff_edit' %}active{% endif %}">
+                    <i class="bi bi-person-gear"></i>
+                    <span>Staff</span>
+                </a>
+            </li>
 
-        <a href="{% url 'logout' %}" class="sidebar-link logout-link">
+            <li>
+                <a href="{% url 'audit_log_list' %}"
+                   class="{% if page == 'audit_log_list' %}active{% endif %}">
+                    <i class="bi bi-clock-history"></i>
+                    <span>Activity</span>
+                </a>
+            </li>
 
-            <i class="bi bi-box-arrow-left"></i>
+            <li>
+                <a href="{% url 'organization_settings' %}"
+                   class="{% if page == 'organization_settings' %}active{% endif %}">
+                    <i class="bi bi-building-gear"></i>
+                    <span>Organization</span>
+                </a>
+            </li>
 
-            <span>
-                Logout
-            </span>
+        </ul>
 
-        </a>
+    {% endif %}
 
-        {% else %}
-
-        <a href="{% url 'login' %}" class="sidebar-link">
-
-            <i class="bi bi-box-arrow-in-right"></i>
-
-            <span>
-                Login
-            </span>
-
-        </a>
-
-        {% endif %}
-
-    </div>
+    <div class="ip-sidebar-foot">InvoicePro</div>
 
 </aside>
+
+{% endwith %}

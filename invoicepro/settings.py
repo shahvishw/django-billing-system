@@ -10,24 +10,53 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
-from pathlib import Path
-from dotenv import load_dotenv
 import os
+from pathlib import Path
 
-load_dotenv()
+from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
+
+
+def env_bool(name, default=False):
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in ('1', 'true', 'yes', 'on')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load developer-specific values without committing them to Git.
+load_dotenv(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('1', 'true', 'yes', 'on')
+SECRET_KEY = os.getenv(
+    'SECRET_KEY',
+    'django-insecure-local-development-only-change-this-before-deployment',
+)
 
-DEBUG = os.getenv('DEBUG')
+if not DEBUG:
+    if (
+        len(SECRET_KEY) < 50
+        or SECRET_KEY.startswith('django-insecure-')
+        or 'replace-this' in SECRET_KEY
+    ):
+        raise ImproperlyConfigured(
+            'Set a random SECRET_KEY of at least 50 characters before production.'
+        )
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+    if host.strip()
+]
+if not DEBUG and set(ALLOWED_HOSTS).issubset({'127.0.0.1', 'localhost'}):
+    raise ImproperlyConfigured(
+        'Set ALLOWED_HOSTS to the public host names before production.'
+    )
 
 
 # Application definition
@@ -39,12 +68,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'api',
     'accounts',
+    'audit.apps.AuditConfig',
+    'organizations.apps.OrganizationsConfig',
     'customers',
     'products',
     'invoices',
     'payments',
     'dashboard',
+]
+
+AUTHENTICATION_BACKENDS = [
+    'accounts.backends.OrganizationUsernameBackend',
 ]
 
 MIDDLEWARE = [
@@ -77,16 +114,31 @@ TEMPLATES = [
 WSGI_APPLICATION = 'invoicepro.wsgi.application'
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+# PostgreSQL is used whenever DB_NAME is configured. SQLite is for local
+# development only; production must not silently start with a local data file.
+if not DEBUG and not os.getenv('DB_NAME'):
+    raise ImproperlyConfigured(
+        'Set DB_NAME and PostgreSQL connection settings before production.'
+    )
+
+if os.getenv('DB_NAME'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME'),
+            'USER': os.getenv('DB_USER', ''),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -110,7 +162,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = os.getenv('TIME_ZONE', 'Asia/Kolkata')
+LOGIN_RATE_LIMIT_IP_HEADER = os.getenv(
+    'LOGIN_RATE_LIMIT_IP_HEADER',
+    'REMOTE_ADDR',
+).strip().upper()
 
 USE_I18N = True
 
@@ -118,7 +174,9 @@ USE_TZ = True
 
 
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 TEMPLATES[0]['DIRS'] = [BASE_DIR / 'templates']
@@ -126,10 +184,40 @@ TEMPLATES[0]['DIRS'] = [BASE_DIR / 'templates']
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND') or (
+    'django.core.mail.backends.smtp.EmailBackend'
+    if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD
+    else (
+        'django.core.mail.backends.console.EmailBackend'
+        if DEBUG
+        else 'django.core.mail.backends.dummy.EmailBackend'
+    )
+)
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() in ('1', 'true', 'yes', 'on')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'noreply@invoicepro.local')
 
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Safe browser defaults for a public HTTPS deployment. These can be adjusted
+# for a trusted reverse proxy or a non-HTTPS staging environment via .env.
+SECURE_SSL_REDIRECT = env_bool('SECURE_SSL_REDIRECT', not DEBUG)
+SESSION_COOKIE_SECURE = env_bool('SESSION_COOKIE_SECURE', not DEBUG)
+CSRF_COOKIE_SECURE = env_bool('CSRF_COOKIE_SECURE', not DEBUG)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
+SECURE_HSTS_SECONDS = int(
+    os.getenv('SECURE_HSTS_SECONDS', '31536000' if not DEBUG else '0')
+)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool(
+    'SECURE_HSTS_INCLUDE_SUBDOMAINS', False
+)
+SECURE_HSTS_PRELOAD = env_bool('SECURE_HSTS_PRELOAD', False)
+if env_bool('USE_X_FORWARDED_PROTO', False):
+    # Enable only when a trusted proxy removes client-supplied copies and sets this header.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

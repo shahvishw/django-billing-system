@@ -1,0 +1,29 @@
+{% extends "accounts/auth_base.html" %}
+
+{% block title %}Set up your business{% endblock %}
+
+{% block heading %}Set up your business{% endblock %}
+{% block subheading %}Create your organization to start using InvoicePRO.{% endblock %}
+
+{% block content %}
+
+<form method="post" class="ip-form" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="ip-notice ip-notice-danger mb-3">
+            <i class="bi bi-x-circle-fill"></i>
+            <div>{{ form.non_field_errors }}</div>
+        </div>
+    {% endif %}
+
+    <div class="mb-4">
+        {% include 'partials/form_field.html' with field=form.organization_name %}
+    </div>
+
+    <button type="submit" class="ip-btn ip-btn-primary ip-btn-block">
+        <i class="bi bi-building-add"></i> Create organization
+    </button>
+</form>
+
+{% endblock %}

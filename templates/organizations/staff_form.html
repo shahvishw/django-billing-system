@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}{% if staff_membership %}Edit Staff Role{% else %}Add Staff Member{% endif %}{% endblock %}
+
+{% block content %}
+
+<!-- ================= HEADER ================= -->
+
+<div class="ip-page-header">
+    <div>
+        <a href="{% url 'staff_list' %}" class="ip-back">
+            <i class="bi bi-arrow-left"></i> Back to staff
+        </a>
+
+        <h1 class="ip-title">
+            {% if staff_membership %}Edit staff role{% else %}Add staff member{% endif %}
+        </h1>
+
+        <p class="ip-subtitle">
+            {% if staff_membership %}
+                Update the role for {{ staff_membership.login_username|default:staff_membership.user.username }}.
+            {% else %}
+                Create a login for a member of your team. Usernames only need to be unique inside this organization.
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="ip-card">
+
+            <div class="ip-card-head">
+                <h5>{% if staff_membership %}Role{% else %}Account details{% endif %}</h5>
+            </div>
+
+            <div class="ip-card-body">
+
+                <form method="post" class="ip-form" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="ip-notice ip-notice-danger mb-3">
+                            <i class="bi bi-x-circle-fill"></i>
+                            <div>{{ form.non_field_errors }}</div>
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        {% for field in form %}
+                            <div class="col-md-6">
+                                {% include 'partials/form_field.html' with field=field %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="ip-form-actions">
+                        <a href="{% url 'staff_list' %}" class="ip-btn ip-btn-secondary">Cancel</a>
+                        <button type="submit" class="ip-btn ip-btn-primary">
+                            <i class="bi bi-check-circle"></i>
+                            {% if staff_membership %}Save role{% else %}Create staff account{% endif %}
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load money %}
+
+{% block title %}Catalog{% endblock %}
+
+{% block content %}
+<div class="ip-page-header">
+    <div>
+        <h1 class="ip-title">Catalog</h1>
+        <p class="ip-subtitle">Products and services available for invoices.</p>
+    </div>
+    {% if request.membership.role == 'owner' or request.membership.role == 'manager' %}
+        <a href="{% url 'catalog_add' %}" class="ip-btn ip-btn-primary">
+            <i class="bi bi-plus-lg"></i> Add item
+        </a>
+    {% endif %}
+</div>
+
+<div class="ip-card">
+    <form method="get" class="ip-toolbar ip-list-filters">
+        <div class="ip-search flex-grow-1">
+            <i class="bi bi-search"></i>
+            <input
+                type="search"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search catalog by name"
+                aria-label="Search catalog by name"
+            >
+        </div>
+        <select name="type" class="ip-input" aria-label="Filter by item type">
+            <option value="all" {% if item_type == 'all' %}selected{% endif %}>All types</option>
+            <option value="product" {% if item_type == 'product' %}selected{% endif %}>Products</option>
+            <option value="service" {% if item_type == 'service' %}selected{% endif %}>Services</option>
+        </select>
+        <select name="status" class="ip-input" aria-label="Filter by status">
+            <option value="all" {% if status == 'all' %}selected{% endif %}>All items</option>
+            <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+        </select>
+        <button type="submit" class="ip-btn ip-btn-secondary">Filter</button>
+        <a href="{% url 'catalog_list' %}" class="ip-btn ip-btn-secondary">Clear</a>
+    </form>
+
+    {% if items %}
+        <div class="table-responsive">
+            <table class="ip-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Type</th>
+                        <th class="ip-num">Sale price</th>
+                        <th class="ip-num">MRP</th>
+                        <th class="ip-num">Stock</th>
+                        <th>Discount</th>
+                        <th>Status</th>
+                        {% if request.membership.role == 'owner' or request.membership.role == 'manager' %}
+                            <th class="text-end">Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.name }}</strong>
+                                {% if item.brand %}<div class="ip-muted small">{{ item.brand }}</div>{% endif %}
+                            </td>
+                            <td>{{ item.get_item_type_display }}</td>
+                            <td class="ip-num">{% if item.sale_price is not None %}{{ item.sale_price|inr }}{% else %}—{% endif %}</td>
+                            <td class="ip-num">{% if item.mrp is not None %}{{ item.mrp|inr }}{% else %}—{% endif %}</td>
+                            <td class="ip-num">{% if item.item_type == 'product' %}{{ item.stock_quantity }}{% else %}—{% endif %}</td>
+                            <td>{{ item.default_discount_percent }}% / {{ item.max_discount_percent }}% max</td>
+                            <td>
+                                {% if item.is_active %}
+                                    <span class="ip-badge ip-badge-success">Active</span>
+                                {% else %}
+                                    <span class="ip-badge ip-badge-neutral">Inactive</span>
+                                {% endif %}
+                            </td>
+                            {% if request.membership.role == 'owner' or request.membership.role == 'manager' %}
+                                <td>
+                                    <div class="ip-actions">
+                                        <a href="{% url 'catalog_edit' item.product_id %}" class="ip-btn ip-btn-secondary ip-btn-sm">
+                                            Edit
+                                        </a>
+                                        <form method="post" action="{% url 'catalog_toggle_active' item.product_id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="ip-btn ip-btn-secondary ip-btn-sm">
+                                                {% if item.is_active %}Deactivate{% else %}Activate{% endif %}
+                                            </button>
+                                        </form>
+                                        {% if item.usage_count == 0 %}
+                                            <form
+                                                method="post"
+                                                action="{% url 'catalog_delete' item.product_id %}"
+                                                onsubmit="return confirm('Delete {{ item.name|escapejs }}? This cannot be undone.');"
+                                            >
+                                                {% csrf_token %}
+                                                <button type="submit" class="ip-icon-btn text-danger" title="Delete item" aria-label="Delete {{ item.name }}">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+    {% else %}
+        <div class="ip-empty">
+            <i class="bi bi-box-seam"></i>
+            <h5>No catalog items found</h5>
+            <p>{% if query or status != 'all' or item_type != 'all' %}Try changing your search or filters.{% else %}Add products or services to use them on invoices.{% endif %}</p>
+            {% if request.membership.role == 'owner' or request.membership.role == 'manager' %}
+                <a href="{% url 'catalog_add' %}" class="ip-btn ip-btn-primary">
+                    <i class="bi bi-plus-lg"></i> Add item
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

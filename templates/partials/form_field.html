@@ -1,0 +1,15 @@
+{% comment %}
+    Usage: {% include 'partials/form_field.html' with field=form.username %}
+    Shows label, the input, optional help text, and error messages.
+{% endcomment %}
+<label for="{{ field.id_for_label }}">{{ field.label }}</label>
+
+{{ field }}
+
+{% if field.help_text %}
+    <div class="ip-hint">{{ field.help_text|safe }}</div>
+{% endif %}
+
+{% for error in field.errors %}
+    <div class="ip-error">{{ error }}</div>
+{% endfor %}

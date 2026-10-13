@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Activity History{% endblock %}
+
+{% block content %}
+
+<!-- ================= HEADER ================= -->
+
+<div class="ip-page-header">
+    <div>
+        <h1 class="ip-title">Activity history</h1>
+        <p class="ip-subtitle">Recent important activity in your organization.</p>
+    </div>
+</div>
+
+
+<div class="ip-card">
+
+    <form method="get" class="ip-toolbar ip-list-filters">
+        <label class="ip-filter-date">From <input type="date" name="date_from" value="{{ date_from }}" class="ip-input"></label>
+        <label class="ip-filter-date">To <input type="date" name="date_to" value="{{ date_to }}" class="ip-input"></label>
+        <button type="submit" class="ip-btn ip-btn-secondary">Filter dates</button>
+        <a href="{% url 'audit_log_list' %}" class="ip-btn ip-btn-secondary">Clear</a>
+    </form>
+
+    {% if audit_logs %}
+
+        <div class="table-responsive">
+            <table class="ip-table">
+
+                <thead>
+                    <tr>
+                        <th>When</th>
+                        <th>Performed by</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for log in audit_logs %}
+                        <tr>
+
+                            <td class="text-nowrap">{{ log.created_at|date:"d M Y, H:i" }}</td>
+
+                            <td>
+                                {% if log.actor %}
+                                    <div class="ip-person">
+                                        <div class="ip-avatar-sm">{{ log.actor.username|slice:":1"|upper }}</div>
+                                        <strong class="text-dark">{{ log.actor_display }}</strong>
+                                    </div>
+                                {% else %}
+                                    <span class="ip-muted">System</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <span class="ip-badge ip-badge-neutral">{{ log.get_action_display }}</span>
+                            </td>
+
+                            <td>{{ log.description }}</td>
+
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+
+    {% else %}
+
+        <div class="ip-empty">
+            <i class="bi bi-clock-history"></i>
+            <h5>{% if date_from or date_to %}No activity in this date range{% else %}No activity yet{% endif %}</h5>
+            <p class="mb-0">{% if date_from or date_to %}Try a different date range.{% else %}Important actions, like creating invoices or changing staff, will appear here.{% endif %}</p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

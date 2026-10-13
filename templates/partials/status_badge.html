@@ -1,0 +1,12 @@
+{% comment %}
+    Usage: {% include 'partials/status_badge.html' with status=invoice.payment_status %}
+{% endcomment %}
+{% if status == 'paid' %}
+    <span class="ip-badge ip-badge-success">Paid</span>
+{% elif status == 'partially_paid' %}
+    <span class="ip-badge ip-badge-info">Partially paid</span>
+{% elif status == 'overdue' %}
+    <span class="ip-badge ip-badge-danger">Overdue</span>
+{% else %}
+    <span class="ip-badge ip-badge-warning">Unpaid</span>
+{% endif %}

@@ -1,342 +1,210 @@
 {% extends "base.html" %}
-{% load static %}
+{% load money %}
 
-{% block title %}
-Dashboard
-{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
 
-<!-- Top Header -->
+<!-- ================= HEADER ================= -->
 
-<div class="dashboard-header">
-
+<section class="ip-dashboard-welcome">
     <div>
-
-        <h2 class="page-title">
-            Dashboard
-        </h2>
-
-        <p class="page-subtitle">
-            Welcome back, {{ request.user.username }}
-        </p>
-
+        <p class="ip-dashboard-kicker">{{ request.organization.name }}</p>
+        <h1>Good to see you, {{ request.user.first_name|default:request.membership.login_username|default:request.user.username }}</h1>
+        <p>{{ request.membership.get_role_display }} overview · {% now "l, d F Y" %}</p>
     </div>
+    {% if request.membership.role != 'accountant' %}
+        <a href="{% url 'invoice_add' %}" class="ip-btn ip-btn-primary">
+            <i class="bi bi-plus-lg"></i> Create invoice
+        </a>
+    {% endif %}
+</section>
 
-    <div class="header-actions">
 
-        <button class="header-btn">
+<!-- ================= STAT CARDS ================= -->
 
-            <i class="bi bi-download"></i>
-
-            Reports
-
-        </button>
-
-        <div class="user-profile">
-
-            <i class="bi bi-person-circle"></i>
-
-            {{ request.user.username }}
-
+<div class="row g-3 mb-4">
+    {% for metric in metrics %}
+        <div class="col-sm-6 col-xl-3">
+            <div class="ip-card ip-stat">
+                <div class="ip-stat-icon is-{{ metric.style }}">
+                    <i class="bi {{ metric.icon }}"></i>
+                </div>
+                <div>
+                    <p class="ip-stat-label">{{ metric.label }}</p>
+                    <p class="ip-stat-value">{{ metric.value }}</p>
+                </div>
+            </div>
         </div>
-
-    </div>
-
+    {% endfor %}
 </div>
 
-
-<!-- KPI CARDS -->
 
 <div class="row g-4">
 
-    <div class="col-md-6 col-xl-3">
-
-        <div class="stats-card revenue-card">
-
-            <div class="stats-icon">
-                <i class="bi bi-currency-rupee"></i>
-            </div>
-
-            <div>
-
-                <h6>Total Revenue</h6>
-
-                <h3>
-                    ₹{{ total_revenue }}
-                </h3>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="col-md-6 col-xl-3">
-
-        <div class="stats-card invoice-card">
-
-            <div class="stats-icon">
-                <i class="bi bi-receipt"></i>
-            </div>
-
-            <div>
-
-                <h6>Total Invoices</h6>
-
-                <h3>
-                    {{ total_invoices }}
-                </h3>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="col-md-6 col-xl-3">
-
-        <div class="stats-card customer-card">
-
-            <div class="stats-icon">
-                <i class="bi bi-people"></i>
-            </div>
-
-            <div>
-
-                <h6>Total Customers</h6>
-
-                <h3>
-                    {{ total_customers }}
-                </h3>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="col-md-6 col-xl-3">
-
-        <div class="stats-card pending-card">
-
-            <div class="stats-icon">
-                <i class="bi bi-clock-history"></i>
-            </div>
-
-            <div>
-
-                <h6>Pending Amount</h6>
-
-                <h3>
-                    ₹{{ pending_amount }}
-                </h3>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- Charts Section -->
-
-<div class="row mt-4 g-4">
+    <!-- ================= RECENT INVOICES ================= -->
 
     <div class="col-lg-8">
+        <div class="ip-card">
 
-        <div class="dashboard-panel">
-
-            <div class="panel-header">
-
-                <h5>
-                    Revenue Overview
-                </h5>
-
+            <div class="ip-card-head">
+                <h5>Recent invoices</h5>
+                <a href="{% url 'invoice_list' %}" class="ip-link">View all</a>
             </div>
 
-            <canvas id="revenueChart"></canvas>
+            {% if recent_invoices %}
+                <div class="table-responsive">
+                    <table class="ip-table">
+                        <thead>
+                            <tr>
+                                <th>Invoice</th>
+                                <th>Customer</th>
+                                <th class="ip-num">Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for invoice in recent_invoices %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'invoice_detail' invoice.pk %}" class="ip-link">
+                                            {{ invoice.invoice_number }}
+                                        </a>
+                                        <div class="ip-muted small">{{ invoice.date|date:"d M Y" }}</div>
+                                    </td>
+                                    <td>{{ invoice.customer.name }}</td>
+                                    <td class="ip-num">{{ invoice.total|inr }}</td>
+                                    <td>
+                                        {% include 'partials/status_badge.html' with status=invoice.payment_status %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="ip-empty">
+                    <i class="bi bi-receipt"></i>
+                    <h5>No invoices yet</h5>
+                    <p>Your latest invoices will show up here.</p>
+                    {% if request.membership.role != 'accountant' %}
+                        <a href="{% url 'invoice_add' %}" class="ip-btn ip-btn-primary">
+                            <i class="bi bi-plus-lg"></i> Create your first invoice
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
 
         </div>
-
     </div>
+
+
+    <!-- ================= RIGHT COLUMN ================= -->
 
     <div class="col-lg-4">
 
-        <div class="dashboard-panel">
-
-            <div class="panel-header">
-
-                <h5>
-                    Invoice Status
-                </h5>
-
+        <!-- Quick actions -->
+        <div class="ip-card mb-4">
+            <div class="ip-card-head">
+                <h5>Quick actions</h5>
             </div>
-
-            <canvas id="invoiceChart"></canvas>
-
+            <div class="ip-card-body">
+                {% for action in quick_actions %}
+                    <a href="{% url action.url_name %}" class="ip-action">
+                        <i class="bi {{ action.icon }}"></i>
+                        <span>{{ action.label }}</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                {% endfor %}
+            </div>
         </div>
 
-    </div>
+        <!-- Low stock -->
+        {% if can_view_inventory %}
+            <div class="ip-card">
+                <div class="ip-card-head">
+                    <h5>Low stock products</h5>
+                </div>
 
+                {% if low_stock_products %}
+                    <div class="table-responsive">
+                        <table class="ip-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th class="ip-num">In stock</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in low_stock_products %}
+                                    <tr>
+                                        <td>{{ product.name }}</td>
+                                        <td class="ip-num">
+                                            <span class="ip-badge ip-badge-danger">
+                                                {{ product.stock_quantity }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="ip-empty">
+                        <i class="bi bi-box-seam"></i>
+                        <p class="mb-0">All products are well stocked.</p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+    </div>
 </div>
 
 
-<!-- Recent Invoices -->
+<!-- ================= RECENT ACTIVITY (owner only) ================= -->
 
-<div class="dashboard-panel mt-4">
+{% if is_owner %}
+    <div class="ip-card mt-4">
 
-    <div class="panel-header">
+        <div class="ip-card-head">
+            <h5>Recent activity</h5>
+            <a href="{% url 'audit_log_list' %}" class="ip-link">View all</a>
+        </div>
 
-        <h5>
-            Recent Invoices
-        </h5>
-
-    </div>
-
-    <div class="table-responsive">
-
-        <table class="table custom-table align-middle">
-
-            <thead>
-
-                <tr>
-
-                    <th>Invoice</th>
-                    <th>Customer</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                {% for invoice in recent_invoices %}
-
-                <tr>
-
-                    <td>
-                        {{ invoice.invoice_number }}
-                    </td>
-
-                    <td>
-                        {{ invoice.customer.name }}
-                    </td>
-
-                    <td>
-                        ₹{{ invoice.total }}
-                    </td>
-
-                    <td>
-
-                        {% if invoice.status == 'Paid' %}
-
-                        <span class="status-badge success-badge">
-                            Paid
-                        </span>
-
-                        {% elif invoice.status == 'Pending' %}
-
-                        <span class="status-badge warning-badge">
-                            Pending
-                        </span>
-
-                        {% else %}
-
-                        <span class="status-badge danger-badge">
-                            Overdue
-                        </span>
-
-                        {% endif %}
-
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
+        {% if recent_activity %}
+            <div class="table-responsive">
+                <table class="ip-table">
+                    <thead>
+                        <tr>
+                            <th>When</th>
+                            <th>Performed by</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in recent_activity %}
+                            <tr>
+                                <td class="text-nowrap">{{ log.created_at|date:"d M Y, H:i" }}</td>
+                                <td>
+                                    {{ log.actor_display }}
+                                </td>
+                                <td>{{ log.get_action_display }}</td>
+                                <td>{{ log.description }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="ip-empty">
+                <i class="bi bi-clock-history"></i>
+                <p class="mb-0">No activity has been recorded yet.</p>
+            </div>
+        {% endif %}
 
     </div>
-
-</div>
-
-
-<!-- Low Stock -->
-
-<div class="dashboard-panel mt-4 mb-5">
-
-    <div class="panel-header">
-
-        <h5>
-            Low Stock Products
-        </h5>
-
-    </div>
-
-    <div class="table-responsive">
-
-        <table class="table custom-table align-middle">
-
-            <thead>
-
-                <tr>
-
-                    <th>Product</th>
-                    <th>Stock</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                {% for product in low_stock_products %}
-
-                <tr>
-
-                    <td>
-                        {{ product.name }}
-                    </td>
-
-                    <td>
-
-                        <span class="status-badge danger-badge">
-                            {{ product.quantity }}
-                        </span>
-
-                    </td>
-
-                </tr>
-
-                {% empty %}
-
-                <tr>
-
-                    <td colspan="2">
-                        No low stock products
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
+{% endif %}
 
 {% endblock %}

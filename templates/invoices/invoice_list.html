@@ -1,165 +1,139 @@
 {% extends "base.html" %}
-{% load static %}
-
-{% block title %}
-Invoices
-{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/invoice-list.css' %}">
-{% endblock %}
+{% load money %}
+{% block title %}Invoices{% endblock %}
 
 {% block content %}
 
-<!-- Page Header -->
+<!-- ================= HEADER ================= -->
 
-<div class="page-header">
-
+<div class="ip-page-header">
     <div>
-
-        <h2 class="page-title">
-            Invoices
-        </h2>
-
-        <p class="page-subtitle">
-            Manage and track all customer invoices
-        </p>
-
+        <h1 class="ip-title">Invoices</h1>
+        <p class="ip-subtitle">{{ invoices.paginator.count }} invoice{{ invoices.paginator.count|pluralize }} match your filters.</p>
     </div>
 
-    <a href="{% url 'invoice_add' %}" class="primary-btn">
-
-        <i class="bi bi-plus-circle"></i>
-
-        New Invoice
-
-    </a>
-
+    {% if request.membership.role != 'accountant' %}
+        <a href="{% url 'invoice_add' %}" class="ip-btn ip-btn-primary">
+            <i class="bi bi-plus-lg"></i>
+            New Invoice
+        </a>
+    {% endif %}
 </div>
 
 
-<!-- Invoice Table Card -->
+<div class="ip-card">
 
-<div class="invoice-panel">
-
-    <div class="panel-top">
-
-        <div class="search-box">
-
+    <form method="get" class="ip-toolbar ip-list-filters">
+        <div class="ip-search">
             <i class="bi bi-search"></i>
+            <input type="search" name="q" value="{{ query }}" placeholder="Invoice number or customer" aria-label="Search invoices">
+        </div>
+        <select name="status" class="ip-input" aria-label="Payment status">
+            <option value="all" {% if status == 'all' %}selected{% endif %}>All statuses</option>
+            <option value="unpaid" {% if status == 'unpaid' %}selected{% endif %}>Unpaid</option>
+            <option value="partially_paid" {% if status == 'partially_paid' %}selected{% endif %}>Partially paid</option>
+            <option value="overdue" {% if status == 'overdue' %}selected{% endif %}>Overdue</option>
+            <option value="paid" {% if status == 'paid' %}selected{% endif %}>Paid</option>
+        </select>
+        <label class="ip-filter-date">From <input type="date" name="date_from" value="{{ date_from }}" class="ip-input"></label>
+        <label class="ip-filter-date">To <input type="date" name="date_to" value="{{ date_to }}" class="ip-input"></label>
+        <button type="submit" class="ip-btn ip-btn-secondary">Filter</button>
+        <a href="{% url 'invoice_list' %}" class="ip-btn ip-btn-secondary">Clear</a>
+    </form>
 
-            <input
-                type="text"
-                id="invoiceSearch"
-                placeholder="Search invoices..."
-            >
+    {% if invoices %}
 
+        <div class="table-responsive">
+            <table class="ip-table">
+
+                <thead>
+                    <tr>
+                        <th>Invoice No.</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Due date</th>
+                        <th class="ip-num">Total</th>
+                        <th class="ip-num">Balance due</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for invoice in invoices %}
+                        {% with status=invoice.payment_status %}
+                        <tr>
+
+                            <td class="invoice-number">
+                                <a href="{% url 'invoice_detail' invoice.id %}" class="ip-link">
+                                    {{ invoice.invoice_number }}
+                                </a>
+                            </td>
+
+                            <td class="customer-name">{{ invoice.customer.name }}</td>
+
+                            <td class="text-nowrap">{{ invoice.date|date:"d M Y" }}</td>
+
+                            <td class="text-nowrap">
+                                {{ invoice.due_date|date:"d M Y"|default:"—" }}
+                            </td>
+
+                            <td class="ip-num">{{ invoice.total|inr }}</td>
+
+                            <td class="ip-num">{{ invoice.balance_due|inr }}</td>
+
+                            <td class="invoice-status">
+                                {% include 'partials/status_badge.html' with status=status %}
+                            </td>
+
+                            <td>
+                                <div class="ip-actions">
+                                    <a href="{% url 'invoice_detail' invoice.id %}"
+                                       class="ip-btn ip-btn-secondary ip-btn-sm">
+                                        View
+                                    </a>
+
+                                    {% if status != 'paid' %}
+                                        <a href="{% url 'make_payment' invoice.id %}"
+                                           class="ip-icon-btn"
+                                           title="Record payment">
+                                            <i class="bi bi-cash-coin"></i>
+                                        </a>
+                                    {% endif %}
+
+                                    <a href="{% url 'invoice_pdf' invoice.id %}"
+                                       class="ip-icon-btn"
+                                       title="Download PDF">
+                                        <i class="bi bi-file-earmark-pdf"></i>
+                                    </a>
+                                </div>
+                            </td>
+
+                        </tr>
+                        {% endwith %}
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+
+    {% else %}
+
+        <div class="ip-empty">
+            <i class="bi bi-receipt"></i>
+            <h5>{% if query or status != 'all' or date_from or date_to %}No matching invoices{% else %}No invoices yet{% endif %}</h5>
+            <p>{% if query or status != 'all' or date_from or date_to %}Try changing your search or filters.{% else %}Create your first invoice to start tracking payments.{% endif %}</p>
+            {% if request.membership.role != 'accountant' %}
+                <a href="{% url 'invoice_add' %}" class="ip-btn ip-btn-primary">
+                    <i class="bi bi-plus-lg"></i> Create invoice
+                </a>
+            {% endif %}
         </div>
 
-    </div>
-
-
-    <div class="table-responsive">
-
-        <table class="table invoice-table align-middle">
-
-            <thead>
-
-                <tr>
-
-                    <th>Invoice No.</th>
-                    <th>Customer</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                    <th class="text-end">Actions</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody id="invoiceTableBody">
-
-                {% for invoice in invoices %}
-
-                <tr class="invoice-row">
-
-                    <td class="invoice-number">
-                        <strong>
-                            {{ invoice.invoice_number }}
-                        </strong>
-                    </td>
-
-                    <td class="customer-name">
-                        {{ invoice.customer.name }}
-                    </td>
-
-                    <td>
-                        ₹ {{ invoice.total }}
-                    </td>
-
-                    <td class="invoice-status">
-
-                        {% if invoice.is_paid %}
-
-                            <span class="status-badge success-badge">
-                                Paid
-                            </span>
-
-                        {% else %}
-
-                            <span class="status-badge danger-badge">
-                                Unpaid
-                            </span>
-
-                        {% endif %}
-
-                    </td>
-
-                    <td class="text-end">
-
-                        <a
-                            href="{% url 'invoice_detail' invoice.id %}"
-                            class="action-btn"
-                        >
-
-                            <i class="bi bi-eye"></i>
-
-                            View
-
-                        </a>
-
-                    </td>
-
-                </tr>
-
-                {% empty %}
-
-                <tr>
-
-                    <td colspan="5" class="empty-state">
-
-                        <i class="bi bi-receipt"></i>
-
-                        <p>
-                            No invoices found
-                        </p>
-
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
+    {% endif %}
 
 </div>
-
-{% block extra_js %}
-<script src="{% static 'js/invoice-search.js' %}"></script>
-{% endblock %}
 
 {% endblock %}

@@ -41,14 +41,14 @@
 
             <div class="profile-avatar">
 
-                {{ request.user.username|first|upper }}
+                {{ request.membership.login_username|default:request.user.username|first|upper }}
 
             </div>
 
             <div>
 
                 <h6 class="mb-0">
-                    {{ request.user.username }}
+                    {{ request.membership.login_username|default:request.user.username }}
                 </h6>
 
                 <small>

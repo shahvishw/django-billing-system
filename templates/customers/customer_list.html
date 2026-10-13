@@ -1,176 +1,125 @@
 {% extends "base.html" %}
-{% load static %}
 
-{% block title %}
-Customers
-{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/customer-list.css' %}">
-{% endblock %}
+{% block title %}Customers{% endblock %}
 
 {% block content %}
 
-<!-- ================= PAGE HEADER ================= -->
+<!-- ================= HEADER ================= -->
 
-<div class="customers-header">
-
+<div class="ip-page-header">
     <div>
-
-        <h2 class="page-title">
-            Customers
-        </h2>
-
-        <p class="page-subtitle">
-            Manage and view all registered customers
+        <h1 class="ip-title">Customers</h1>
+        <p class="ip-subtitle">
+            {{ customers.paginator.count }} customer{{ customers.paginator.count|pluralize }} match your search
         </p>
-
     </div>
 
-    <div class="customers-search">
-
-        <i class="bi bi-search"></i>
-
-        <input 
-            type="text"
-            id="customerSearch"
-            placeholder="Search customers..."
-        >
-
-    </div>
-
+    {% if request.membership.role != 'accountant' %}
+        <a href="{% url 'customer_add' %}" class="ip-btn ip-btn-primary">
+            <i class="bi bi-person-plus"></i>
+            Add Customer
+        </a>
+    {% endif %}
 </div>
 
 
-<!-- ================= CUSTOMERS TABLE ================= -->
+<div class="ip-card">
 
-<div class="customers-table-card">
+    <form method="get" class="ip-toolbar ip-list-filters">
+            <div class="ip-search">
+                <i class="bi bi-search"></i>
+                <input
+                    type="search"
+                    name="q"
+                    value="{{ query }}"
+                    placeholder="Search by name, phone or email"
+                    aria-label="Search customers"
+                >
+            </div>
+            <button type="submit" class="ip-btn ip-btn-secondary">Search</button>
+            <a href="{% url 'customer_list' %}" class="ip-btn ip-btn-secondary">Clear</a>
+    </form>
 
     {% if customers %}
 
-    <div class="table-responsive">
+        <div class="table-responsive">
+            <table class="ip-table">
 
-        <table class="table customers-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
 
-            <thead>
+                <tbody>
 
-                <tr>
+                    {% for customer in customers %}
+                        <tr>
 
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th class="text-end">Actions</th>
+                            <td>
+                                <div class="ip-person">
+                                    <div class="ip-avatar-sm">{{ customer.name|slice:":1"|upper }}</div>
+                                    <strong class="text-dark">{{ customer.name }}</strong>
+                                </div>
+                            </td>
 
-                </tr>
+                            <td class="text-nowrap">{{ customer.phone }}</td>
 
-            </thead>
+                            <td>{{ customer.email|default:"—" }}</td>
 
-            <tbody id="customersTableBody">
+                            <td>
+                                <div class="ip-actions">
 
-                {% for customer in customers %}
+                                    {% if request.membership.role != 'accountant' %}
+                                        <a href="{% url 'customer_edit' customer.pk %}"
+                                           class="ip-btn ip-btn-secondary ip-btn-sm">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </a>
+                                    {% endif %}
 
-                <tr>
+                                    {% if request.membership.role == 'owner' or request.membership.role == 'manager' %}
+                                        <form
+                                            method="post"
+                                            action="{% url 'customer_delete' customer.pk %}"
+                                            class="d-inline"
+                                            onsubmit="return confirm('Delete {{ customer.name|escapejs }}? This cannot be undone.');"
+                                        >
+                                            {% csrf_token %}
+                                            <button type="submit" class="ip-icon-btn text-danger" title="Delete customer">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
 
-                    <td>
+                                </div>
+                            </td>
 
-                        <div class="customer-name">
+                        </tr>
+                    {% endfor %}
 
-                            <div class="customer-avatar">
-
-                                {{ customer.name|slice:":1" }}
-
-                            </div>
-
-                            <div>
-
-                                <strong>
-                                    {{ customer.name }}
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-                    </td>
-
-                    <td>
-                        {{ customer.email }}
-                    </td>
-
-                    <td>
-                        {{ customer.phone }}
-                    </td>
-
-                    <td class="text-end">
-
-                        <a
-                            href="{% url 'customer_edit' customer.pk %}"
-                            class="edit-btn"
-                        >
-
-                            <i class="bi bi-pencil-square"></i>
-
-                            Edit
-
-                        </a>
-
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
+                </tbody>
+            </table>
+        </div>
+        {% include 'partials/pagination.html' %}
 
     {% else %}
 
-    <div class="empty-state">
-
-        <i class="bi bi-people"></i>
-
-        <h5>
-            No Customers Found
-        </h5>
-
-        <p>
-            Customers will appear here after creation.
-        </p>
-
-    </div>
+        <div class="ip-empty">
+            <i class="bi bi-people"></i>
+            <h5>{% if query %}No matching customers{% else %}No customers yet{% endif %}</h5>
+            <p>{% if query %}Try another name, phone or email.{% else %}Customers are added here, or while creating an invoice.{% endif %}</p>
+            {% if request.membership.role != 'accountant' %}
+                <a href="{% url 'customer_add' %}" class="ip-btn ip-btn-primary">
+                    <i class="bi bi-person-plus"></i> Add your first customer
+                </a>
+            {% endif %}
+        </div>
 
     {% endif %}
 
 </div>
-
-
-<!-- ================= SEARCH SCRIPT ================= -->
-
-<script>
-
-document.getElementById('customerSearch')
-
-.addEventListener('keyup', function () {
-
-    const value = this.value.toLowerCase();
-
-    const rows = document.querySelectorAll('#customersTableBody tr');
-
-    rows.forEach(row => {
-
-        const text = row.innerText.toLowerCase();
-
-        row.style.display = text.includes(value)
-            ? ''
-            : 'none';
-
-    });
-
-});
-
-</script>
 
 {% endblock %}

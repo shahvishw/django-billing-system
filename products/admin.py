@@ -1,26 +1,30 @@
 from django.contrib import admin
-from .models import Product
+
+from .models import CatalogItem
 
 
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
+@admin.register(CatalogItem)
+class CatalogItemAdmin(admin.ModelAdmin):
     list_display = (
         'name',
+        'item_type',
         'brand',
         'category',
-        'price',
-        'quantity'
+        'cost_price',
+        'mrp',
+        'default_discount_percent',
+        'max_discount_percent',
+        'stock_quantity',
+        'is_active',
     )
-
     list_filter = (
+        'item_type',
+        'is_active',
         'brand',
-        'category'
+        'category',
     )
-
     search_fields = (
         'name',
         'brand',
-        'category'
+        'category',
     )
-
-   

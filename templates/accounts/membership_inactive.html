@@ -1,0 +1,20 @@
+{% extends "accounts/auth_base.html" %}
+
+{% block title %}Access inactive{% endblock %}
+
+{% block heading %}Access is inactive{% endblock %}
+{% block subheading %}
+    Your access to this organization is currently inactive.
+    Please contact your organization owner to get it restored.
+{% endblock %}
+
+{% block content %}
+
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="ip-btn ip-btn-secondary ip-btn-block">
+        <i class="bi bi-box-arrow-left"></i> Log out
+    </button>
+</form>
+
+{% endblock %}
